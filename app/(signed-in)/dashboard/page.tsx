@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 import { useUser } from '@clerk/nextjs';
-import { LogOutIcon, VideoIcon } from 'lucide-react';
+import { Eraser, LogOutIcon, VideoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import { useState } from 'react';
 import { Channel, ChannelHeader, MessageInput, MessageList, Thread, useChatContext, Window } from 'stream-chat-react';
 
 function Dashboard() {
@@ -13,6 +13,7 @@ function Dashboard() {
   const router = useRouter();
   const { channel, setActiveChannel } = useChatContext();
   const { setOpen } = useSidebar();
+  const [clearing, setClearing] = useState(false);
 
   const handleCall = () => {
     if (!channel) return;
@@ -21,10 +22,7 @@ function Dashboard() {
   };
 
   const handleLeaveChat = async () => {
-    if (!channel || !user?.id) {
-      console.log('No channel or user found');
-      return;
-    }
+    if (!channel || !user?.id) return;
     const confirm = window.confirm('Are you sure you want to leave this chat?');
     if (!confirm) return;
     try {
@@ -33,6 +31,20 @@ function Dashboard() {
       router.push('/dashboard');
     } catch (error) {
       console.error('Error leaving the chat:', error);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (!channel) return;
+    const confirm = window.confirm('Delete all messages in this chat? This cannot be undone.');
+    if (!confirm) return;
+    setClearing(true);
+    try {
+      await channel.truncate({ hard_delete: true });
+    } catch (error) {
+      console.error('Error clearing history:', error);
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -49,22 +61,38 @@ function Dashboard() {
               )}
 
               <div className='flex items-center gap-2'>
-                <Button variant='outline' onClick={handleCall}>
+                {(channel.data?.member_count ?? 1) > 1 && (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={handleClearHistory}
+                    disabled={clearing}
+                    className='text-muted-foreground hover:text-foreground'
+                  >
+                    <Eraser className='w-4 h-4' />
+                    Clear
+                  </Button>
+                )}
+
+                <Button variant='outline' size='sm' onClick={handleCall}>
                   <VideoIcon className='w-4 h-4' />
                   Video Call
                 </Button>
 
                 <Button
                   variant='outline'
+                  size='sm'
                   onClick={handleLeaveChat}
-                  className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 '
+                  className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950'
                 >
                   <LogOutIcon className='w-4 h-4' />
-                  Leave Chat
+                  Leave
                 </Button>
               </div>
             </div>
-            <MessageList />
+
+            <MessageList messageActions={['edit', 'delete']} />
+
             <div className='sticky bottom-0 w-full'>
               <MessageInput />
             </div>

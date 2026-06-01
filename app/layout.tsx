@@ -17,8 +17,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ragini Pandey Telegram Clone',
-  description: 'Ragini Pandey Telegram Clone app',
+  title: 'ChatFun — Modern Messaging Platform',
+  description: 'ChatFun is a modern messaging platform with real-time chat, HD video calls, channels, and group conversations.',
+  icons: {
+    icon: '/71c607ae-be83-407c-af29-a74ecbaa9e1f.png',
+  },
+  openGraph: {
+    title: 'ChatFun — Modern Messaging Platform',
+    description: 'Real-time chat, HD video calls, channels & group conversations.',
+    images: ['/71c607ae-be83-407c-af29-a74ecbaa9e1f.png'],
+  },
 };
 
 export default function RootLayout({

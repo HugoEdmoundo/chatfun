@@ -1,158 +1,109 @@
-# Telegram Clone (Next.js + Convex + Clerk + Stream)
+# ChatFun — Modern Messaging Platform
 
-A modern Telegram-style web messenger built with **Next.js (App Router) + TypeScript + Tailwind + shadcn/ui**, using **Clerk** for authentication, **Convex** for data/functions, and **Stream Chat** for real-time messaging.
+A modern, full-featured messaging platform built with **Next.js (App Router) + TypeScript + TailwindCSS + shadcn/ui**, using **Clerk** for authentication, **Convex** for serverless data, and **Stream Chat/Video** for real-time messaging and video calls.
 
----
+## Live Demo
 
-## 🚀 Live Demo
+[https://chatfun.hugoedmoundo.fun](https://chatfun.hugoedmoundo.fun)
 
-Live Demo: [https://telegram-clone-tau.vercel.app](https://telegram-clone-tau.vercel.app)
+## Features
 
----
+- **Real-time Messaging** — Instant 1-on-1 and group chat with typing indicators, read receipts, and file sharing
+- **HD Video Calls** — One-click video calls with screen sharing via Stream Video (WebRTC)
+- **Channels** — Broadcast channels with hybrid discussion threads (like Telegram)
+- **Group Chats** — Rich group conversations with admin controls and member management
+- **Liquid Glass UI** — Telegram-inspired frosted glass design with smooth animations
+- **Authentication** — Secure login with email, Google, or GitHub via Clerk
+- **Privacy First** — End-to-end encryption, SOC 2 compliant infrastructure
+- **Lightning Fast** — Built on Next.js, Convex real-time DB, and Stream SDK
 
-## 📸 Screenshots
+## Tech Stack
 
-Here are some screenshots of the app:
+| Technology | Purpose |
+|---|---|
+| **Next.js 15** (App Router) | React framework with SSR |
+| **React 19** + TypeScript | UI library |
+| **TailwindCSS v4** + shadcn/ui | Styling & components |
+| **Clerk** | Authentication & user management |
+| **Convex** | Serverless backend + real-time database |
+| **Stream Chat** | Real-time messaging infrastructure |
+| **Stream Video** | WebRTC video calling SDK |
 
-| View | Screenshot |
-|------|------------|
-| Landing page | ![Landing page](https://github.com/ragini-pandey/telegram-clone/blob/master/public/screenshot1.png) |
-| Conversation view | ![Conversation view](https://github.com/ragini-pandey/telegram-clone/blob/master/public/screenshot2.png) |
-| Video call | ![Video call](https://github.com/ragini-pandey/telegram-clone/blob/master/public/screenshot3.png) |
+## Getting Started
 
----
+```bash
+git clone <repo-url>
+cd chatfun
+npm install
 
-
-## ✨ Features
-
-- 🔐 **Auth**: Email/SSO auth with **Clerk**
-- 💬 **Real-time chat**: 1:1 and room conversations powered by **Stream Chat**
-- 🗂️ **Convex**: Serverless functions, user upsert/sync, and persistence
-- 🧩 **UI**: **shadcn/ui** components + **TailwindCSS**
-- 🟢 **Presence & typing** (via Stream channels)
-- 📎 **Attachments**: Images/files (Stream CDN)
-- 🔍 **Search**: Channel/user/message search
-- ✅ **Read receipts** / message states
-
----
-
-## 🏗️ Tech Stack
-
-- **Frontend**: Next.js (App Router), React, TypeScript, Tailwind, shadcn/ui
-- **Auth**: Clerk
-- **Backend / Data**: Convex
-- **Realtime Messaging**: Stream Chat
-- **Tooling**: ESLint, PostCSS, Turbopack dev
-
----
-
-## 📦 Structure
-
-```
-.
-├─ app/                 # Next.js app router
-├─ components/          # UI components
-├─ convex/              # Convex schema & serverless functions
-├─ hooks/               # React hooks
-├─ lib/                 # Stream & helper libraries
-├─ public/              # static assets
-├─ middleware.ts        # Clerk auth middleware
-├─ components.json      # shadcn/ui registry
-├─ package.json
-└─ README.md
+# Set up environment variables (see .env.local)
+npm run dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## ⚙️ Prerequisites
+## Project Structure
 
-- Node.js 18+
-- npm / pnpm
-- Clerk account & API keys
-- Stream Chat account & keys
-- Convex CLI
+```
+├── app/                 # Next.js App Router
+│   ├── page.tsx         # Landing page
+│   ├── (signed-in)/     # Authenticated routes (dashboard, channels)
+│   └── docs/            # Documentation (12+ pages)
+├── components/          # React components
+│   ├── landing/         # Landing page components
+│   ├── channel/         # Channel feature components
+│   └── ui/              # shadcn/ui components
+├── convex/              # Convex backend (schema + serverless functions)
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility libraries (Stream clients)
+└── actions/             # Next.js Server Actions
+```
 
----
+## Documentation
 
-## 🔑 Environment Variables
+Full documentation is available at `/docs`:
 
-`.env.local`
+- [Overview](/docs)
+- [Getting Started](/docs/getting-started)
+- [Messaging](/docs/messaging)
+- [Groups](/docs/groups)
+- [Channels](/docs/channels-docs)
+- [Video Calls](/docs/video-calls)
+- [Privacy & Security](/docs/privacy)
+- [Architecture](/docs/architecture)
+- [API Reference](/docs/api)
+- [Deployment](/docs/deployment)
+- [Contributing](/docs/contributing)
+- [FAQ](/docs/faq)
+
+## Scripts
+
+```bash
+npm run dev       # Next.js + Convex dev servers
+npm run build     # Production build
+npm start         # Start production server
+npm run lint      # ESLint
+```
+
+## Environment Variables
+
+Create a `.env.local` file with your API keys:
 
 ```
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_****
 CLERK_SECRET_KEY=sk_****
-
-NEXT_PUBLIC_STREAM_KEY=XXXX
+NEXT_PUBLIC_STREAM_API_KEY=XXXX
 STREAM_API_SECRET_KEY=YYYY
 STREAM_APP_ID=1234567
-
 CONVEX_DEPLOYMENT=dev:local
 ```
 
----
+## Deployment
 
-## 🚀 Getting Started
-
-```bash
-npm install
-npm run dev
-npx convex dev
-```
-
-Open: `http://localhost:3000`
-
----
-
-## 🧪 Test Data
-
-- Use Clerk test users
-- Add channels/users via Stream dashboard
-
----
-
-## 🛠️ Scripts
+Deploy to Vercel (frontend) + Convex Cloud (backend):
 
 ```bash
-npm run dev     # Next.js + Convex
-npm run build   # Build
-npm start       # Start prod
-npm run lint    # Lint
+npx convex deploy
+# Then connect your repo to Vercel and add environment variables
 ```
-
----
-
-## 🧰 shadcn/ui
-
-```bash
-npx shadcn-ui@latest add button input
-```
-
----
-
-## 🔒 Auth Flow
-
-- Clerk auth + middleware-protected routes
-- Server helpers: `auth()`
-
----
-
-## 📡 Realtime (Stream)
-
-- Client: `NEXT_PUBLIC_STREAM_KEY`
-- Server: signs tokens with `STREAM_API_SECRET_KEY`
-
----
-
-## 🧰 Convex
-
-- Run locally with `npx convex dev`
-- Define schema/functions in `/convex`
-
----
-
-## 📦 Deploy
-
-- **Vercel** (Next.js) + **Convex Cloud**
-- Add env vars to hosting provider

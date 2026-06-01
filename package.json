@@ -1,14 +1,14 @@
 {
-  "name": "telegram-clone",
+  "name": "chatfun",
   "version": "0.1.0",
   "private": false,
-  "description": "A full-stack Telegram clone built with Next.js, Convex, Clerk, Stream SDK, and TailwindCSS.",
-  "author": "Ragini Pandey",
+  "description": "ChatFun — Modern messaging platform with real-time chat, video calls & channels. Built with Next.js, Convex, Clerk & Stream SDK.",
+  "author": "ChatFun Team",
   "repository": {
     "type": "git",
     "url": "https://github.com/ragini-pandey/telegram-clone.git"
   },
-  "homepage": "https://github.com/ragini-pandey/telegram-clone#readme",
+  "homepage": "https://chatfun.app",
   "scripts": {
     "dev": "concurrently \"next dev\" \"yarn convex dev\"",
     "build": "next build",
@@ -54,7 +54,7 @@
   },
   "keywords": [
     "nextjs",
-    "telegram-clone",
+    "chatfun",
     "react",
     "convex",
     "clerk",
