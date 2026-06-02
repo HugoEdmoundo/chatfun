@@ -1,4 +1,4 @@
-import { ArrowRight, FileText, Image, MessageCircle, Search, Smile } from 'lucide-react';
+import { ArrowRight, FileText, Image, MessageCircle, Reply, Search, Smile } from 'lucide-react';
 
 export default function MessagingDocs() {
   return (
@@ -6,8 +6,8 @@ export default function MessagingDocs() {
       <div>
         <h1 className='text-4xl font-bold tracking-tight mb-4'>Messaging</h1>
         <p className='text-lg text-muted-foreground'>
-          ChatFun provides a rich real-time messaging experience with support for text, media, files,
-          and more. Every message is delivered instantly with read receipts and typing indicators.
+          ChatFun provides a rich Telegram-style messaging experience with support for text, media, files,
+          reactions, replies, and quotes. Powered by Stream Chat with custom CSS overrides.
         </p>
       </div>
 
@@ -20,27 +20,39 @@ export default function MessagingDocs() {
         <div className='grid gap-6 sm:grid-cols-2'>
           <FeatureCard
             icon={MessageCircle}
-            title='Text Messaging'
-            desc='Send and receive messages instantly. Supports rich text, emojis, and markdown formatting. Messages sync across all your devices in real-time.'
+            title='Telegram-style Bubbles'
+            desc='Sent messages appear in blue rounded bubbles on the right; received messages in gray bubbles on the left. Clean, minimal design with the Stream Chat "messaging light" theme.'
             color='#2AABEE'
           />
           <FeatureCard
             icon={Smile}
-            title='Emoji & Reactions'
-            desc='Express yourself with emojis and message reactions. React to any message with a wide selection of emojis.'
+            title='Emoji Reactions'
+            desc='React to any message with a wide selection of emojis. Reactions appear inline on hover beneath messages.'
             color='#8B5CF6'
+          />
+          <FeatureCard
+            icon={Reply}
+            title='Replies & Quotes'
+            desc='Reply to specific messages with quoted preview. The quoted message appears above your reply with the original author name and a snippet of text.'
+            color='#06D6A0'
           />
           <FeatureCard
             icon={Image}
             title='Media Sharing'
-            desc='Share images and files directly in chat. Media is uploaded via Stream CDN and displayed inline with thumbnails and previews.'
-            color='#06D6A0'
+            desc='Share images and files directly in chat via the built-in attach button. Media is uploaded via Stream CDN with inline previews. Requires "Enable File Upload" in Stream Dashboard settings.'
+            color='#EC4899'
           />
           <FeatureCard
             icon={Search}
             title='Message Search'
             desc='Search through your conversation history. Find specific messages, media, or links quickly with the built-in search.'
-            color='#EC4899'
+            color='#F59E0B'
+          />
+          <FeatureCard
+            icon={FileText}
+            title='Message Actions'
+            desc='Hover over any message to reveal action buttons: reply, react, edit, delete, and more. Custom actions configured via Stream Chat message actions.'
+            color='#8B5CF6'
           />
         </div>
       </section>
@@ -87,12 +99,13 @@ export default function MessagingDocs() {
       <section className='glass rounded-2xl p-8 space-y-4'>
         <h2 className='text-xl font-semibold text-foreground'>File & Media Sharing</h2>
         <p className='text-sm text-muted-foreground'>
-          ChatFun supports sharing images and files directly in conversations. Uploaded files are stored
-          securely via Stream&apos;s CDN and automatically optimized for fast delivery.
+          ChatFun supports sharing images and files directly in conversations via the Stream Chat input attach button.
+          Uploaded files are stored securely via Stream&apos;s CDN and automatically optimized for fast delivery.
         </p>
         <div className='text-sm text-muted-foreground space-y-2'>
           <p><strong>Supported formats:</strong> Images (JPEG, PNG, GIF, WebP), Documents (PDF, DOC, TXT), and more.</p>
           <p><strong>File size limit:</strong> Determined by Stream Chat plan (typically 100MB for files, 10MB for images).</p>
+          <p><strong>Note:</strong> File upload must be enabled in the Stream Dashboard under Settings &rarr; Chat &rarr; File Upload.</p>
         </div>
       </section>
 

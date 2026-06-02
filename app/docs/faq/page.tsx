@@ -1,4 +1,4 @@
-import { ArrowRight, FileQuestion, Mail, MessageCircle, Shield, UserPlus, Video } from 'lucide-react';
+import { ArrowRight, FileQuestion, Heart, Mail, MessageCircle, Shield, UserPlus, Video } from 'lucide-react';
 
 export default function FAQDocs() {
   const faqs = [
@@ -30,7 +30,7 @@ export default function FAQDocs() {
       icon: FileQuestion,
       title: 'How do channels work?',
       answer:
-        'Channels are broadcast-style communication where admins post messages and subscribers read them. You can create public or private channels. Admins create posts, and subscribers can join with one click and react to posts.',
+        'Channels are broadcast-style communication where admins post messages and subscribers read them. You can create public or private channels. Admins create/edit/delete posts (with optional image uploads), and subscribers can join with one click, react to posts with 👍❤️😮, post comments with emoji reactions and 1-level replies, and edit/delete their own comments.',
     },
     {
       icon: Shield,
@@ -42,7 +42,13 @@ export default function FAQDocs() {
       icon: Mail,
       title: 'Can I share files in chat?',
       answer:
-        'Yes! You can share images and files directly in conversations. Uploaded files are stored securely via Stream CDN and automatically optimized for fast delivery. Supported formats include images, documents, and more.',
+        'Yes! You can share images and files directly in conversations via the Stream Chat attach button. Uploaded files are stored securely via Stream CDN. Note: file upload must be enabled in the Stream Dashboard settings.',
+    },
+    {
+      icon: Heart,
+      title: 'How do reactions work on posts and comments?',
+      answer:
+        'Posts and comments support emoji reactions (👍❤️😮). Click a reaction emoji to toggle it on/off — each shows a live count of who reacted. Reactions are stored per-user so you can toggle freely.',
     },
     {
       icon: MessageCircle,
@@ -54,7 +60,7 @@ export default function FAQDocs() {
       icon: Shield,
       title: 'Can I leave a chat or channel?',
       answer:
-        'Yes. In any conversation, click the "Leave Chat" button in the header. For channels, use the "Leave" button on the channel page. You can always rejoin later if it&apos;s a public channel.',
+        'Yes for groups — click "Leave Chat" in the header. For channels, subscribers can use the "Leave" button on the channel page. Admins cannot leave a channel; they must delete it instead (with confirmation).',
     },
     {
       icon: Video,

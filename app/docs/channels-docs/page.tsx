@@ -1,4 +1,4 @@
-import { ArrowRight, Bell, Edit3, Eye, MessageCircle, Radio, UserPlus, Users } from 'lucide-react';
+import { ArrowRight, Bell, Edit3, Heart, Image, MessageCircle, Radio, UserPlus, Users } from 'lucide-react';
 
 export default function ChannelsDocs() {
   return (
@@ -7,8 +7,8 @@ export default function ChannelsDocs() {
         <h1 className='text-4xl font-bold tracking-tight mb-4'>Channels</h1>
         <p className='text-lg text-muted-foreground'>
           Channels are a powerful broadcast feature that lets you communicate with unlimited subscribers.
-          ChatFun channels use a hybrid model — admins broadcast posts and subscribers can engage in
-          attached discussion threads.
+          ChatFun channels use a post-based model — admins broadcast posts and subscribers can engage
+          with emoji reactions and threaded comments.
         </p>
       </div>
 
@@ -46,7 +46,7 @@ export default function ChannelsDocs() {
                 </tr>
                 <tr className='border-b border-border/20'>
                   <td className='py-2 pr-4 text-foreground'>Discussion</td>
-                  <td className='py-2 pr-4 text-foreground'>Thread-based</td>
+                  <td className='py-2 pr-4 text-foreground'>Comments on posts</td>
                   <td className='py-2 text-foreground'>Open chat</td>
                 </tr>
                 <tr>
@@ -104,27 +104,84 @@ export default function ChannelsDocs() {
         <FeatureCard
           icon={Edit3}
           title='Creating Posts'
-          desc='Admins can write posts with rich text. Posts appear in the channel feed and subscribers receive notifications. Use posts to share updates, announcements, or curated content.'
+          desc='Admins can write posts with text and optional image uploads (via Convex storage). Posts appear in the channel feed with author, relative timestamp, comment count, and emoji reaction bar. Posts can be edited or deleted inline by the admin on hover.'
           color='#2AABEE'
         />
         <FeatureCard
-          icon={Eye}
-          title='Viewing & Reacting'
-          desc='Subscribers can view all channel posts and react with emojis. Each post shows the author, timestamp, and subscriber engagement.'
+          icon={Heart}
+          title='Reactions on Posts'
+          desc='Subscribers can react to posts with 👍❤️😮. Each reaction shows a live count and who reacted. Toggle reactions on/off freely.'
+          color='#EC4899'
+        />
+        <FeatureCard
+          icon={MessageCircle}
+          title='Comments with Reactions & Replies'
+          desc='Each post has a threaded comment section. Comments support 1-level replies (with quoted parent), emoji reactions (👍❤️😮), and inline edit/delete by the author or admin. Comment count displayed on the toggle button.'
           color='#06D6A0'
+        />
+        <FeatureCard
+          icon={Image}
+          title='Image Uploads'
+          desc='Admins can attach images to posts via Convex storage. Images are uploaded with a preview before posting and rendered inline in the post feed.'
+          color='#8B5CF6'
         />
         <FeatureCard
           icon={UserPlus}
           title='Joining Channels'
-          desc='Users can browse public channels and join with one click. Private channels require an invite or direct link from the admin.'
-          color='#8B5CF6'
+          desc='Users can browse public channels and join with one click. Private channels require membership. Channel detail view checks access control and shows "Not Found" for non-members.'
+          color='#F59E0B'
         />
         <FeatureCard
           icon={Bell}
-          title='Notifications'
-          desc='Subscribers receive notifications for new posts. Admins can control notification settings and pin important announcements.'
-          color='#EC4899'
+          title='Notifications & Pagination'
+          desc='Posts are loaded 10 at a time with a "Load more" button. The channel list on the sidebar shows channels the user belongs to with their role.'
+          color='#2AABEE'
         />
+      </section>
+
+      <section className='glass rounded-2xl p-8 space-y-4'>
+        <h2 className='text-xl font-semibold text-foreground flex items-center gap-2'>
+          <Edit3 className='w-5 h-5 text-[#06D6A0]' />
+          Managing Channels & Posts
+        </h2>
+        <ul className='space-y-3 text-sm'>
+          <li className='flex items-start gap-3'>
+            <span className='w-5 h-5 rounded-full bg-[#2AABEE]/15 flex items-center justify-center flex-shrink-0 mt-0.5'>
+              <span className='w-1.5 h-1.5 rounded-full bg-[#2AABEE]' />
+            </span>
+            <div>
+              <p className='font-medium text-foreground'>Edit Channel</p>
+              <p className='text-muted-foreground'>Admins can edit channel name, description, and public/private visibility from the channel detail page. Shows a loading state while saving.</p>
+            </div>
+          </li>
+          <li className='flex items-start gap-3'>
+            <span className='w-5 h-5 rounded-full bg-[#06D6A0]/15 flex items-center justify-center flex-shrink-0 mt-0.5'>
+              <span className='w-1.5 h-1.5 rounded-full bg-[#06D6A0]' />
+            </span>
+            <div>
+              <p className='font-medium text-foreground'>Delete Channel</p>
+              <p className='text-muted-foreground'>Admins can delete the entire channel (with confirmation). This is the only way an admin can "leave" — leaving is blocked for admins with an error message.</p>
+            </div>
+          </li>
+          <li className='flex items-start gap-3'>
+            <span className='w-5 h-5 rounded-full bg-[#8B5CF6]/15 flex items-center justify-center flex-shrink-0 mt-0.5'>
+              <span className='w-1.5 h-1.5 rounded-full bg-[#8B5CF6]' />
+            </span>
+            <div>
+              <p className='font-medium text-foreground'>Edit / Delete Posts</p>
+              <p className='text-muted-foreground'>Hover over a post as admin to reveal edit and delete buttons. Edit opens an inline textarea; delete shows a confirmation. Comments can also be edited/deleted by their author or the channel admin.</p>
+            </div>
+          </li>
+          <li className='flex items-start gap-3'>
+            <span className='w-5 h-5 rounded-full bg-[#F59E0B]/15 flex items-center justify-center flex-shrink-0 mt-0.5'>
+              <span className='w-1.5 h-1.5 rounded-full bg-[#F59E0B]' />
+            </span>
+            <div>
+              <p className='font-medium text-foreground'>Rate Limiting</p>
+              <p className='text-muted-foreground'>All mutation functions (create, edit, delete, react, comment) are rate-limited to 1 request per second per user to prevent spam.</p>
+            </div>
+          </li>
+        </ul>
       </section>
 
       <section className='glass rounded-2xl p-8 space-y-4'>
@@ -134,14 +191,14 @@ export default function ChannelsDocs() {
             <Users className='w-4 h-4 text-[#2AABEE] mt-0.5 flex-shrink-0' />
             <div>
               <p className='font-medium text-foreground'>Admin</p>
-              <p className='text-muted-foreground'>Channel creator or promoted admin. Can create posts, manage subscribers, edit channel settings, and delete content.</p>
+              <p className='text-muted-foreground'>Channel creator. Can create/edit/delete posts, upload images, manage channel settings (name, description, visibility), view and moderate comments, and delete the channel. Cannot leave — must delete instead.</p>
             </div>
           </li>
           <li className='flex items-start gap-3'>
             <Users className='w-4 h-4 text-[#06D6A0] mt-0.5 flex-shrink-0' />
             <div>
               <p className='font-medium text-foreground'>Subscriber</p>
-              <p className='text-muted-foreground'>Channel follower. Can view posts, react with emojis, and leave the channel at any time.</p>
+              <p className='text-muted-foreground'>Channel follower. Can view posts, react with 👍❤️😮, post and edit/delete own comments, reply to comments, and leave the channel at any time.</p>
             </div>
           </li>
         </ul>

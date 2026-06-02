@@ -20,7 +20,7 @@ export default function DeploymentDocs() {
         <div className='glass rounded-2xl p-8 space-y-4'>
           <h3 className='font-semibold text-foreground'>Prerequisites</h3>
           <ul className='list-disc list-inside text-sm text-muted-foreground space-y-1'>
-            <li>Node.js 18+ installed</li>
+            <li>Node.js 18.18+ installed</li>
             <li>npm or yarn package manager</li>
             <li>A Clerk account with API keys</li>
             <li>A Stream Chat account with API keys</li>
@@ -94,7 +94,7 @@ npm install</pre>
               <span className='font-medium text-foreground'>Add environment variables</span> in Vercel project settings (all variables from .env.local).
             </li>
             <li>
-              <span className='font-medium text-foreground'>Set production Convex URL:</span> Set <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>CONVEX_URL</code> to your production Convex deployment URL.
+              <span className='font-medium text-foreground'>Set production Convex URL:</span> Set <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>NEXT_PUBLIC_CONVEX_URL</code> to your production Convex deployment URL.
             </li>
             <li>
               <span className='font-medium text-foreground'>Deploy:</span> Push to GitHub or trigger a manual deploy in Vercel.
@@ -110,15 +110,14 @@ npm install</pre>
           <p className='text-foreground'>NEXT_PUBLIC_APP_URL</p>
           <p className='text-foreground'>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</p>
           <p className='text-foreground'>CLERK_SECRET_KEY</p>
-          <p className='text-foreground'>NEXT_PUBLIC_CLERK_JWT_ISSUER_DOMAIN</p>
+          <p className='text-foreground'>CLERK_JWT_ISSUER_DOMAIN</p>
           <p className='text-foreground'>NEXT_PUBLIC_STREAM_API_KEY</p>
           <p className='text-foreground'>STREAM_API_SECRET_KEY</p>
           <p className='text-foreground'>STREAM_APP_ID</p>
-          <p className='text-foreground'>CONVEX_URL</p>
-          <p className='text-foreground'>CONVEX_DEPLOYMENT</p>
+          <p className='text-foreground'>NEXT_PUBLIC_CONVEX_URL</p>
         </div>
         <p className='text-xs text-muted-foreground'>
-          Note: <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>CONVEX_URL</code> is set automatically by Convex when you run <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>npx convex deploy</code>.
+           Note: <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>NEXT_PUBLIC_CONVEX_URL</code> is set automatically by Convex when you run <code className='text-xs px-1 py-0.5 rounded bg-muted font-mono'>npx convex deploy</code>.
         </p>
       </section>
 
