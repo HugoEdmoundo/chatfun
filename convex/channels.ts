@@ -34,6 +34,7 @@ export const createPostWithImage = mutation({
             authorId,
             content,
             imageUrl: imageUrl ?? undefined,
+            reactions: [],
             createdAt: Date.now(),
             isPinned: false,
         })
@@ -151,15 +152,7 @@ export const leaveChannel = mutation({
         if (!membership) return
 
         if (membership.role === "admin") {
-            const allMembers = await ctx.db
-                .query("channelMembers")
-                .withIndex("by_channelId", (q) => q.eq("channelId", channelId))
-                .collect()
-            const otherAdmins = allMembers.filter((m) => m.role === "admin" && m._id !== membership._id)
-
-            if (otherAdmins.length === 0) {
-                throw new Error("Cannot leave: you are the only admin. Promote another member first.")
-            }
+            throw new Error("Admins cannot leave the channel. Delete the channel instead.")
         }
 
         await ctx.db.delete(membership._id)
@@ -220,6 +213,7 @@ export const createPost = mutation({
             authorId,
             content,
             imageUrl,
+            reactions: [],
             createdAt: Date.now(),
             isPinned: false,
         })
@@ -301,6 +295,57 @@ export const getPostComments = query({
             .withIndex("by_postId_createdAt", (q) => q.eq("postId", postId))
             .order("asc")
             .collect()
+    },
+})
+
+export const getPostCommentCount = query({
+    args: { postId: v.id("channelPosts") },
+    handler: async (ctx, { postId }) => {
+        const comments = await ctx.db
+            .query("channelComments")
+            .withIndex("by_postId", (q) => q.eq("postId", postId))
+            .collect()
+        return comments.length
+    },
+})
+
+export const togglePostReaction = mutation({
+    args: {
+        postId: v.id("channelPosts"),
+        channelId: v.id("channels"),
+        userId: v.string(),
+        emoji: v.string(),
+    },
+    handler: async (ctx, { postId, channelId, userId, emoji }) => {
+        const membership = await ctx.db
+            .query("channelMembers")
+            .withIndex("by_channelId_userId", (q) => q.eq("channelId", channelId).eq("userId", userId))
+            .first()
+
+        if (!membership) {
+            throw new Error("Only channel members can react")
+        }
+
+        const post = await ctx.db.get(postId)
+        if (!post) throw new Error("Post not found")
+
+        const reactions = post.reactions ?? []
+
+        const existing = reactions.find(
+            (r) => r.emoji === emoji && r.userId === userId
+        )
+
+        if (existing) {
+            await ctx.db.patch(postId, {
+                reactions: reactions.filter(
+                    (r) => !(r.emoji === emoji && r.userId === userId)
+                ),
+            })
+        } else {
+            await ctx.db.patch(postId, {
+                reactions: [...reactions, { emoji, userId }],
+            })
+        }
     },
 })
 

@@ -9,6 +9,7 @@
  */
 
 import type * as channels from "../channels.js";
+import type * as rateLimiter from "../rateLimiter.js";
 import type * as users from "../users.js";
 
 import type {
@@ -19,6 +20,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   channels: typeof channels;
+  rateLimiter: typeof rateLimiter;
   users: typeof users;
 }>;
 

@@ -6,14 +6,14 @@ import { useCountUp } from '@/hooks/useCountUp';
 
 const stats = [
   { icon: Users, value: 50000, suffix: '+', label: 'Active Users', color: '#2AABEE' },
-  { icon: MessageCircle, value: 1000000, suffix: '+', label: 'Messages Sent', color: '#8B5CF6' },
+  { icon: MessageCircle, value: 1000000, suffix: '+', label: 'Messages Daily', color: '#8B5CF6' },
   { icon: Radio, value: 5000, suffix: '+', label: 'Channels Created', color: '#06D6A0' },
   { icon: Zap, value: 99.9, suffix: '%', label: 'Uptime', color: '#F59E0B', divide: true },
 ];
 
 function formatCount(value: number, suffix: string, divide?: boolean) {
   if (divide && value < 1000) return value.toFixed(1) + suffix;
-  if (value >= 1000000) return (value / 1000000).toFixed(0) + 'M' + suffix;
+  if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M' + suffix;
   if (value >= 1000) return (value / 1000).toFixed(0) + 'K' + suffix;
   return value + suffix;
 }
@@ -47,7 +47,23 @@ function StatCard({ stat, idx }: { stat: typeof stats[number]; idx: number }) {
 function StatsBar() {
   return (
     <section className='relative py-16'>
-      <div className='max-w-5xl mx-auto px-4 sm:px-6'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-6'>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className='text-center mb-10'
+        >
+          <h2 className='text-3xl sm:text-4xl font-bold mb-3'>
+            Built for scale, trusted by{' '}
+            <span className='gradient-text'>thousands</span>
+          </h2>
+          <p className='text-muted-foreground max-w-xl mx-auto'>
+            Our numbers speak for themselves
+          </p>
+        </motion.div>
+
         <div className='glass rounded-2xl p-8 sm:p-10'>
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-8'>
             {stats.map((stat, idx) => (

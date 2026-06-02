@@ -38,6 +38,10 @@ export default defineSchema({
         authorId: v.string(),
         content: v.string(),
         imageUrl: v.optional(v.string()),
+        reactions: v.optional(v.array(v.object({
+            emoji: v.string(),
+            userId: v.string(),
+        }))),
         createdAt: v.number(),
         updatedAt: v.optional(v.number()),
         isPinned: v.boolean(),

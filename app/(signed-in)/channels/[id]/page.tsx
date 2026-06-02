@@ -275,7 +275,12 @@ function PostWithComments({
     api.channels.getPostComments,
     showComments ? { postId: post._id, channelId, userId } : 'skip'
   );
+  const commentCount = useQuery(
+    api.channels.getPostCommentCount,
+    { postId: post._id }
+  );
   const createComment = useMutation(api.channels.createComment);
+  const togglePostReaction = useMutation(api.channels.togglePostReaction);
 
   const topLevel = useMemo(
     () => (comments || []).filter((c) => !c.parentCommentId),
@@ -331,7 +336,26 @@ function PostWithComments({
     setReplyingTo(comment);
   };
 
-  const commentCount = comments?.length ?? 0;
+  const postReactionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of post.reactions ?? []) {
+      counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+    }
+    return counts;
+  }, [post.reactions]);
+
+  const hasPostReacted = (emoji: string) =>
+    (post.reactions ?? []).some((r) => r.emoji === emoji && r.userId === userId);
+
+  const handlePostReact = async (emoji: string) => {
+    try {
+      await togglePostReaction({ postId: post._id, channelId, userId, emoji });
+    } catch (err) {
+      console.error('Failed to react to post:', err);
+    }
+  };
+
+  const totalComments = commentCount ?? 0;
 
   return (
     <div className='glass-card p-5 space-y-3'>
@@ -423,14 +447,36 @@ function PostWithComments({
         )}
       </div>
 
+      {/* Post reactions */}
+      {isMember && (
+        <div className='flex items-center gap-3 text-xs text-muted-foreground pl-[52px]'>
+          {EMOJI_LIST.map((emoji) => {
+            const count = postReactionCounts[emoji] || 0;
+            const active = hasPostReacted(emoji);
+            return (
+              <button
+                key={emoji}
+                onClick={() => handlePostReact(emoji)}
+                className={`flex items-center gap-0.5 hover:text-foreground transition-colors ${
+                  active ? 'text-[#2AABEE]' : ''
+                }`}
+              >
+                <span className='text-sm'>{emoji}</span>
+                {count > 0 && <span>{count}</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Toggle comments */}
       {isMember && (
         <button
           onClick={() => setShowComments(!showComments)}
-          className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors'
+          className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors pl-[52px]'
         >
           <MessageSquare className='w-3.5 h-3.5' />
-          {commentCount > 0 ? `${commentCount} comments` : 'Comments'}
+          {totalComments > 0 ? `${totalComments} comments` : 'Comments'}
         </button>
       )}
 
@@ -810,15 +856,17 @@ function ChannelDetailPage() {
                   </Button>
                 </>
               )}
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleLeave}
-                className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950'
-              >
-                <UserMinus className='w-4 h-4 mr-1' />
-                Leave
-              </Button>
+              {!isAdmin && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleLeave}
+                  className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950'
+                >
+                  <UserMinus className='w-4 h-4 mr-1' />
+                  Leave
+                </Button>
+              )}
             </div>
           ) : (
             <Button
