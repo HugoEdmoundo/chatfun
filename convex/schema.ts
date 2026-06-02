@@ -2,6 +2,18 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+    callHistory: defineTable({
+        channelId: v.string(),
+        startedBy: v.string(),
+        startedByName: v.string(),
+        callId: v.string(),
+        startedAt: v.number(),
+        endedAt: v.optional(v.number()),
+        duration: v.optional(v.number()),
+    })
+        .index("by_channelId", ["channelId"])
+        .index("by_startedBy", ["startedBy"]),
+
     users: defineTable({
         userId: v.string(),
         name: v.string(),

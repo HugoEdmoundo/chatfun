@@ -5,7 +5,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { useUser } from '@clerk/nextjs';
 import { Eraser, LogOutIcon, VideoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Channel, ChannelHeader, MessageInput, MessageList, Thread, useChatContext, Window } from 'stream-chat-react';
 
 function Dashboard() {
@@ -15,11 +15,31 @@ function Dashboard() {
   const { setOpen } = useSidebar();
   const [clearing, setClearing] = useState(false);
 
-  const handleCall = () => {
+  const handleCall = async () => {
     if (!channel || !channel.id) return;
+    const callUrl = `${window.location.origin}/dashboard/video-call/${encodeURIComponent(channel.id)}`;
+    try {
+      await channel.sendMessage({
+        text: `Join video call: ${callUrl}`,
+      });
+    } catch (error) {
+      console.error('Failed to send invite:', error);
+    }
     router.push(`/dashboard/video-call/${encodeURIComponent(channel.id)}`);
     setOpen(false);
   };
+
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  useEffect(() => {
+    if (!channel?.data?.own_capabilities) return;
+    const needed = ['update-own-message', 'delete-own-message'];
+    const hasAll = needed.every(c => channel.data?.own_capabilities?.includes(c));
+    if (!hasAll && channel.data) {
+      channel.data.own_capabilities = [...channel.data.own_capabilities, ...needed.filter(c => !channel.data?.own_capabilities?.includes(c))];
+      setForceUpdate(prev => prev + 1);
+    }
+  }, [channel]);
 
   const handleLeaveChat = async () => {
     if (!channel || !user?.id) return;
