@@ -3,13 +3,15 @@
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
 import { useMutation } from 'convex/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
 import { createToken } from '@/actions/createToken';
 import streamClient from '@/lib/stream';
 
 function UserSyncWrapper({ children }: { children: React.ReactNode }) {
   const { user, isLoaded: isUserLoaded } = useUser();
+  const userRef = useRef(user);
+  userRef.current = user;
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,8 +25,9 @@ function UserSyncWrapper({ children }: { children: React.ReactNode }) {
       setError(null);
 
       const tokenProvider = async () => {
-        if (!user) throw new Error('User not found');
-        const token = await createToken(user.id);
+        const currentUser = userRef.current;
+        if (!currentUser) throw new Error('User not found');
+        const token = await createToken(currentUser.id);
         return token;
       };
       await createOrUpdateUser({

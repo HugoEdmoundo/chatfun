@@ -22,7 +22,7 @@ export const upsertUser = mutation({
             .first();
 
         if (existingUser) {
-            await ctx.db.patch(existingUser._id, { name, imageUrl })
+            await ctx.db.patch(existingUser._id, { name, email, imageUrl })
             return existingUser._id;
         }
 
@@ -36,7 +36,7 @@ export const searchUsers = query({
     handler: async (ctx, { searchTerm }) => {
         if (!searchTerm.trim()) return [];
 
-        const normalizedSearch = searchTerm.toLocaleLowerCase().trim();
+        const normalizedSearch = searchTerm.toLowerCase().trim();
 
         const allUsers = await ctx.db
             .query("users")
@@ -53,8 +53,10 @@ export const getUsersBatch = query({
     handler: async (ctx, { userIds }) => {
         if (userIds.length === 0) return {}
 
+        const uniqueIds = [...new Set(userIds)]
+
         const users = await Promise.all(
-            userIds.map((uid) =>
+            uniqueIds.map((uid) =>
                 ctx.db
                     .query("users")
                     .withIndex("by_userId", (q) => q.eq("userId", uid))
@@ -62,12 +64,12 @@ export const getUsersBatch = query({
             )
         )
 
-        const result: Record<string, typeof users[0]> = {}
-        for (let i = 0; i < userIds.length; i++) {
+        const results: Record<string, (typeof users)[0]> = {}
+        for (let i = 0; i < uniqueIds.length; i++) {
             if (users[i]) {
-                result[userIds[i]] = users[i]
+                results[uniqueIds[i]] = users[i]
             }
         }
-        return result
+        return results
     },
 })

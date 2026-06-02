@@ -14,7 +14,7 @@ import 'stream-chat-react/dist/css/v2/index.css';
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <UserSyncWrapper>
-      <Chat client={streamClient}>
+      <Chat client={streamClient} theme='messaging light'>
 
         <SidebarProvider
           style={

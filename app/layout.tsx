@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ChatFun — Modern Messaging Platform',
     description: 'Real-time chat, HD video calls, channels & group conversations.',
-    images: ['/71c607ae-be83-407c-af29-a74ecbaa9e1f.png'],
+    images: ['/screenshot1.png'],
   },
 };
 

@@ -13,13 +13,8 @@ import {
 } from '@stream-io/video-react-sdk';
 import { AlertTriangle, Video } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '@stream-io/video-react-sdk/dist/css/styles.css';
-
-
-if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
-  throw new Error("NEXT_PUBLIC_STREAM_API_KEY' is not set");
-}
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
@@ -27,6 +22,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   const [call, setCall] = useState<Call | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
+  const apiKeyRef = useRef(process.env.NEXT_PUBLIC_STREAM_API_KEY);
+
+  if (!apiKeyRef.current) {
+    throw new Error("NEXT_PUBLIC_STREAM_API_KEY is not set");
+  }
 
   const streamUser = useMemo(() => {
     if (!user) return null;

@@ -8,6 +8,7 @@ import {
   Zap,
   Radio,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Feature {
   icon: React.ElementType;
@@ -55,13 +56,29 @@ const features: Feature[] = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+};
+
 function FeaturesGrid() {
   return (
     <section id='features' className='relative py-24 sm:py-32'>
       <div className='orb orb-purple w-[400px] h-[400px] top-0 right-0 opacity-20' />
 
       <div className='max-w-6xl mx-auto px-4 sm:px-6'>
-        <div className='text-center mb-16'>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='text-center mb-16'
+        >
           <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2AABEE]/10 text-[#2AABEE] text-sm font-medium mb-4'>
             <Zap className='w-4 h-4' />
             <span>Powerful features</span>
@@ -75,13 +92,21 @@ function FeaturesGrid() {
             Powerful features designed for seamless communication, whether you&apos;re chatting
             with friends or broadcasting to your community.
           </p>
-        </div>
+        </motion.div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <motion.div
+          variants={containerVariants}
+          initial='hidden'
+          whileInView='visible'
+          viewport={{ once: true, margin: '-50px' }}
+          className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+        >
           {features.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
+            <motion.div key={feature.title} variants={cardVariants}>
+              <FeatureCard feature={feature} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

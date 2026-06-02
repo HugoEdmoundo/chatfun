@@ -3,7 +3,7 @@
 import { Doc } from '@/convex/_generated/dataModel';
 import { useCreateNewChat } from '@/hooks/useCreateNewChat';
 import { useUser } from '@clerk/nextjs';
-import { ImageIcon, Users, XIcon } from 'lucide-react';
+import { ImageIcon, XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useChatContext } from 'stream-chat-react';
@@ -49,12 +49,14 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
   };
 
   const handleCreateChat = async () => {
+    if (!user) return;
     const totalMembers = selectedUsers.length + 1;
     const isGroupChat = totalMembers > 2;
     const channel = await createNewChat({
-      members: [user?.id as string, ...selectedUsers.map((user) => user.userId)],
-      createdBy: user?.id as string,
+      members: [user.id, ...selectedUsers.map((u) => u.userId)],
+      createdBy: user.id,
       groupName: isGroupChat ? groupName.trim() || undefined : undefined,
+      groupDescription: isGroupChat ? groupDesc.trim() || undefined : undefined,
     });
     setActiveChannel(channel);
     setSelectedUsers([]);

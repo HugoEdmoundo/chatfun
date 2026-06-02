@@ -2,6 +2,7 @@
 
 import { SignedOut, SignUpButton } from '@clerk/nextjs';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '../ui/button';
 
 function CTASection() {
@@ -11,7 +12,13 @@ function CTASection() {
       <div className='orb orb-pink w-[300px] h-[300px] top-0 right-[10%] opacity-15' />
 
       <div className='max-w-4xl mx-auto px-4 sm:px-6 relative z-10'>
-        <div className='glass-strong rounded-3xl p-8 sm:p-12 md:p-16 text-center'>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='glass-strong rounded-3xl p-8 sm:p-12 md:p-16 text-center'
+        >
           <div className='w-16 h-16 rounded-2xl bg-gradient-to-br from-[#2AABEE] to-[#8B5CF6] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20'>
             <CheckCircle2 className='w-8 h-8 text-white' />
           </div>
@@ -37,19 +44,19 @@ function CTASection() {
 
           <div className='flex justify-center flex-col sm:flex-row items-center gap-6 mt-10 text-sm text-muted-foreground'>
             <div className='flex items-center gap-2'>
-              <div className='w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50'></div>
+              <div className='w-2 h-2 rounded-full bg-[#2AABEE] shadow-sm shadow-[#2AABEE]/50'></div>
               No credit card required
             </div>
             <div className='flex items-center gap-2'>
-              <div className='w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50'></div>
+              <div className='w-2 h-2 rounded-full bg-[#8B5CF6] shadow-sm shadow-[#8B5CF6]/50'></div>
               Free forever plan
             </div>
             <div className='flex items-center gap-2'>
-              <div className='w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50'></div>
+              <div className='w-2 h-2 rounded-full bg-[#06D6A0] shadow-sm shadow-[#06D6A0]/50'></div>
               Setup in 30 seconds
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
