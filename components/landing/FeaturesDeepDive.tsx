@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { CheckCircle2, MessageCircle, Video, Radio } from 'lucide-react';
 
 const features = [
@@ -87,34 +88,20 @@ function ChatMockup() {
 
 function VideoMockup() {
   return (
-    <div className='glass-strong rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/10 bg-gradient-to-br from-gray-900 to-gray-800'>
-      <div className='h-8 bg-black/30 backdrop-blur-sm flex items-center px-4 gap-1.5 border-b border-white/10'>
+    <div className='glass-strong rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/10'>
+      <div className='h-8 bg-muted/50 backdrop-blur-sm flex items-center px-4 gap-1.5 border-b border-border/40'>
         <div className='w-2.5 h-2.5 rounded-full bg-red-500/80' />
         <div className='w-2.5 h-2.5 rounded-full bg-yellow-500/80' />
         <div className='w-2.5 h-2.5 rounded-full bg-green-500/80' />
-        <div className='ml-3 text-[11px] font-medium text-white/50'>Video Call — 2 participants</div>
+        <div className='ml-3 text-[11px] font-medium text-muted-foreground/60'>Video Call</div>
       </div>
-      <div className='relative'>
-        <div className='aspect-video bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center'>
-          <div className='text-center'>
-            <div className='w-20 h-20 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center mx-auto mb-3 shadow-xl'>
-              <Video className='w-10 h-10 text-white' />
-            </div>
-            <p className='text-white/60 text-sm'>You — camera on</p>
-          </div>
-        </div>
-        <div className='absolute bottom-4 right-4 w-32 aspect-video rounded-lg overflow-hidden border-2 border-white/20 bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center shadow-lg'>
-          <div className='text-center'>
-            <div className='w-6 h-6 rounded-full bg-gradient-to-br from-[#2AABEE] to-[#06D6A0] mx-auto mb-1' />
-            <p className='text-white/40 text-[10px]'>Alice</p>
-          </div>
-        </div>
-        <div className='absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-black/40 to-transparent flex items-center justify-center gap-3'>
-          <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center' />
-          <div className='w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shadow-lg' />
-          <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center' />
-        </div>
-      </div>
+      <Image
+        src='/screenshot3.png'
+        alt='Video Call Interface'
+        width={560}
+        height={380}
+        className='w-full h-auto'
+      />
     </div>
   );
 }

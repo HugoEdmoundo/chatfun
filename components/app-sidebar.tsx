@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { Button } from './ui/button';
-import { useUser, SignOutButton } from '@clerk/nextjs';
+import { useUser, UserButton, SignOutButton } from '@clerk/nextjs';
 import { ChannelList } from 'stream-chat-react';
 import type { ChannelFilters, ChannelSort } from 'stream-chat';
 import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/solid';
@@ -50,12 +50,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <>
                 <div className='fixed inset-0 z-40' onClick={() => setMenuOpen(false)} />
                 <div className='absolute left-0 top-full mt-1 z-50 w-56 bg-white dark:bg-[#2c2c2e] rounded-xl shadow-lg border border-[#e5e5ea] dark:border-[#3a3a3c] py-1 overflow-hidden'>
-                  <div className='px-4 py-3 border-b border-[#e5e5ea] dark:border-[#3a3a3c]'>
-                    <p className='text-xs text-[#8e8e93]'>Signed in as</p>
-                    <p className='text-sm font-medium text-[#000] dark:text-[#fff] truncate'>
-                      {user?.firstName} {user?.lastName}
-                    </p>
-                  </div>
                   <Link
                     href='/dashboard'
                     onClick={() => setMenuOpen(false)}
@@ -105,6 +99,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className='w-full h-9 pl-9 pr-3 bg-[#f4f4f5] dark:bg-[#2a2a3e] rounded-lg text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] outline-none transition-colors focus:bg-[#e8e8ea] dark:focus:bg-[#333350]'
             />
           </div>
+        </div>
+
+        <div className='flex items-center justify-between px-4 py-2.5 border-b border-[#e5e5ea] dark:border-[#3a3a3c]'>
+          <div className='flex items-center gap-2.5 min-w-0'>
+            <div className='w-8 h-8 rounded-full bg-[#2AABEE] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden'>
+              {user?.imageUrl ? (
+                <img src={user.imageUrl} alt='' className='w-full h-full object-cover' />
+              ) : (
+                user?.firstName?.charAt(0) || '?'
+              )}
+            </div>
+            <div className='min-w-0'>
+              <p className='text-sm font-medium text-[#000] dark:text-[#fff] truncate leading-tight'>
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className='text-[11px] text-[#8e8e93] truncate leading-tight'>Profile</p>
+            </div>
+          </div>
+          <UserButton afterSignOutUrl='/sign-in' />
         </div>
       </SidebarHeader>
 
