@@ -20,7 +20,7 @@ import { NewChatDialog } from './NewChatDialog';
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUser();
   const filters: ChannelFilters = {
-    members: { $in: [user?.id as string] },
+    members: { $in: user?.id ? [user.id] : [] },
     type: { $in: ['messaging', 'team'] },
   };
 

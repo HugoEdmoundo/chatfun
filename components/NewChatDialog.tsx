@@ -3,8 +3,9 @@
 import { Doc } from '@/convex/_generated/dataModel';
 import { useCreateNewChat } from '@/hooks/useCreateNewChat';
 import { useUser } from '@clerk/nextjs';
-import { ImageIcon, XIcon } from 'lucide-react';
+import { ImageIcon, Loader2, XIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useChatContext } from 'stream-chat-react';
 import {
@@ -23,25 +24,32 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
   const [selectedUsers, setSelectedUsers] = useState<Doc<'users'>[]>([]);
   const [groupName, setGroupName] = useState('');
   const [groupDesc, setGroupDesc] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
   const { setActiveChannel } = useChatContext();
+  const router = useRouter();
   const createNewChat = useCreateNewChat();
 
   const isGroup = selectedUsers.length > 1;
 
+  const resetForm = () => {
+    setSelectedUsers([]);
+    setGroupName('');
+    setGroupDesc('');
+    setError(null);
+  };
+
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    if (!newOpen) {
-      setSelectedUsers([]);
-      setGroupName('');
-      setGroupDesc('');
-    }
+    if (!newOpen) resetForm();
   };
 
   const handleSelectUser = (user: Doc<'users'>) => {
     if (!selectedUsers.find((u) => u._id === user._id)) {
       setSelectedUsers((prev) => [...prev, user]);
     }
+    setError(null);
   };
 
   const removeUser = (userId: string) => {
@@ -50,19 +58,28 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
 
   const handleCreateChat = async () => {
     if (!user) return;
-    const totalMembers = selectedUsers.length + 1;
-    const isGroupChat = totalMembers > 2;
-    const channel = await createNewChat({
-      members: [user.id, ...selectedUsers.map((u) => u.userId)],
-      createdBy: user.id,
-      groupName: isGroupChat ? groupName.trim() || undefined : undefined,
-      groupDescription: isGroupChat ? groupDesc.trim() || undefined : undefined,
-    });
-    setActiveChannel(channel);
-    setSelectedUsers([]);
-    setGroupName('');
-    setGroupDesc('');
-    setOpen(false);
+    setIsCreating(true);
+    setError(null);
+
+    try {
+      const totalMembers = selectedUsers.length + 1;
+      const isGroupChat = totalMembers > 2;
+      const channel = await createNewChat({
+        members: [user.id, ...selectedUsers.map((u) => u.userId)],
+        createdBy: user.id,
+        groupName: isGroupChat ? groupName.trim() || undefined : undefined,
+        groupDescription: isGroupChat ? groupDesc.trim() || undefined : undefined,
+      });
+      setActiveChannel(channel);
+      resetForm();
+      setOpen(false);
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Failed to create chat:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create chat. Please try again.');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -159,6 +176,14 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
             )}
           </div>
 
+          {error && (
+            <div className='px-6'>
+              <div className='rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3'>
+                <p className='text-sm text-destructive'>{error}</p>
+              </div>
+            </div>
+          )}
+
           <div className='flex items-center justify-between gap-3 p-6 pt-0 border-t border-border/40 bg-muted/10 rounded-b-lg'>
             <p className='text-xs text-muted-foreground'>
               {selectedUsers.length === 0
@@ -168,16 +193,24 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
                   : '1-on-1 chat'}
             </p>
             <div className='flex items-center gap-2'>
-              <Button variant='outline' size='sm' onClick={() => setOpen(false)}>
+              <Button variant='outline' size='sm' onClick={() => setOpen(false)} disabled={isCreating}>
                 Cancel
               </Button>
               <Button
                 size='sm'
-                disabled={selectedUsers.length === 0}
+                disabled={selectedUsers.length === 0 || isCreating}
                 onClick={handleCreateChat}
                 className='bg-gradient-to-r from-[#2AABEE] to-[#8B5CF6] hover:from-[#1E96C8] hover:to-[#7C3AED] text-white'
               >
-                {isGroup ? 'Create Group' : selectedUsers.length === 1 ? 'Start Chat' : 'Create'}
+                {isCreating ? (
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                ) : isGroup ? (
+                  'Create Group'
+                ) : selectedUsers.length === 1 ? (
+                  'Start Chat'
+                ) : (
+                  'Create'
+                )}
               </Button>
             </div>
           </div>

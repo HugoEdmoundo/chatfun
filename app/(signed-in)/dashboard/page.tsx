@@ -16,8 +16,8 @@ function Dashboard() {
   const [clearing, setClearing] = useState(false);
 
   const handleCall = () => {
-    if (!channel) return;
-    router.push(`/dashboard/video-call/${channel.id}`);
+    if (!channel || !channel.id) return;
+    router.push(`/dashboard/video-call/${encodeURIComponent(channel.id)}`);
     setOpen(false);
   };
 

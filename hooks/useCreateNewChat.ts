@@ -12,61 +12,61 @@ export const useCreateNewChat = () => {
         groupName?: string;
         groupDescription?: string;
     }) => {
+        if (members.length < 2) {
+            throw new Error("At least 2 members are required to start a chat");
+        }
+
         const isGroupChat = members.length > 2;
-        if (!isGroupChat) {
-            const sortedMembers = [...members].sort();
-            const existingChannel = await streamClient.queryChannels(
-                { type: "messaging", members: { $eq: sortedMembers } },
-                { created_at: -1 }, { limit: 1 }
-            )
-
-            if (existingChannel.length > 0) {
-                const channel = existingChannel[0];
-                await channel.watch();
-                const channelMembers = Object.keys(channel.state.members).sort();
-
-                if (channelMembers.length === 2 &&
-                    sortedMembers.length === 2 &&
-                    sortedMembers.every((member) => channelMembers.includes(member))
-                ) {
-                    return channel;
-                }
-            }
-
-        }
-
         const sortedMembers = [...members].sort();
-        const channelId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-        try {
-            const channelData: {
-                members: string[];
-                createdBy: string;
-                name?: string;
-                description?: string;
-            } = {
-                members: sortedMembers,
-                createdBy,
+
+        if (!isGroupChat) {
+            try {
+                const existingChannel = await streamClient.queryChannels(
+                    { type: "messaging", members: { $in: sortedMembers }, member_count: 2 },
+                    { created_at: -1 },
+                    { limit: 1, state: true }
+                );
+
+                if (existingChannel.length > 0) {
+                    const channel = existingChannel[0];
+                    const channelMembers = Object.keys(channel.state.members).sort();
+
+                    if (
+                        channelMembers.length === 2 &&
+                        sortedMembers.every((member) => channelMembers.includes(member))
+                    ) {
+                        return channel;
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking existing chat:", error);
             }
-
-            if (isGroupChat) {
-                channelData.name = groupName || `Group Chat (${members.length}) members`;
-                if (groupDescription) channelData.description = groupDescription;
-            }
-
-            const channel = streamClient.channel(
-                isGroupChat ? "team" : "messaging",
-                channelId,
-                channelData
-            );
-            await channel.watch({
-                presence: true,
-            });
-
-            return channel;
-
-        } catch (error) {
-            throw error;
         }
-    }
+
+        const channelId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+        const channelData: {
+            members: string[];
+            createdBy: string;
+            name?: string;
+            description?: string;
+        } = {
+            members: sortedMembers,
+            createdBy,
+        };
+
+        if (isGroupChat) {
+            channelData.name = groupName || `Group Chat (${members.length}) members`;
+            if (groupDescription) channelData.description = groupDescription;
+        }
+
+        const channel = streamClient.channel(
+            isGroupChat ? "team" : "messaging",
+            channelId,
+            channelData
+        );
+        await channel.watch({ presence: true });
+
+        return channel;
+    };
     return createNewChat;
-}
+};

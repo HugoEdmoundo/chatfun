@@ -34,7 +34,7 @@ function UserSyncWrapper({ children }: { children: React.ReactNode }) {
         userId: user.id,
         name:
           user.fullName || user.firstName || user.emailAddresses[0]?.emailAddress || 'Unknown User',
-        email: user.emailAddresses[0]?.emailAddress || '',
+        email: user.emailAddresses[0]?.emailAddress || `${user.id}@user.chatfun`,
         imageUrl: user.imageUrl || '',
       });
 
@@ -72,11 +72,9 @@ function UserSyncWrapper({ children }: { children: React.ReactNode }) {
     if (user) {
       syncUser();
     } else {
-      disconnectUser();
       setIsLoading(false);
     }
 
-    //cleanup function to disconnect user on unmount
     return () => {
       if (user) {
         disconnectUser();
