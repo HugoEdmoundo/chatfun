@@ -47,3 +47,27 @@ export const searchUsers = query({
             .slice(0, 20);
     },
 })
+
+export const getUsersBatch = query({
+    args: { userIds: v.array(v.string()) },
+    handler: async (ctx, { userIds }) => {
+        if (userIds.length === 0) return {}
+
+        const users = await Promise.all(
+            userIds.map((uid) =>
+                ctx.db
+                    .query("users")
+                    .withIndex("by_userId", (q) => q.eq("userId", uid))
+                    .first()
+            )
+        )
+
+        const result: Record<string, typeof users[0]> = {}
+        for (let i = 0; i < userIds.length; i++) {
+            if (users[i]) {
+                result[userIds[i]] = users[i]
+            }
+        }
+        return result
+    },
+})

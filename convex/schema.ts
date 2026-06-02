@@ -45,4 +45,22 @@ export default defineSchema({
         .index("by_channelId", ["channelId"])
         .index("by_channelId_createdAt", ["channelId", "createdAt"])
         .index("by_authorId", ["authorId"]),
+
+    channelComments: defineTable({
+        postId: v.id("channelPosts"),
+        channelId: v.id("channels"),
+        authorId: v.string(),
+        content: v.string(),
+        parentCommentId: v.optional(v.id("channelComments")),
+        reactions: v.array(v.object({
+            emoji: v.string(),
+            userId: v.string(),
+        })),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number()),
+    })
+        .index("by_postId", ["postId"])
+        .index("by_postId_createdAt", ["postId", "createdAt"])
+        .index("by_authorId", ["authorId"])
+        .index("by_parentCommentId", ["parentCommentId"]),
 });

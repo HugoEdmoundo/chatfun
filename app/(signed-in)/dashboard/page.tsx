@@ -91,7 +91,7 @@ function Dashboard() {
               </div>
             </div>
 
-            <MessageList messageActions={['edit', 'delete']} />
+            <MessageList messageActions={['edit', 'delete', 'react', 'reply', 'quote']} />
 
             <div className='sticky bottom-0 w-full'>
               <MessageInput />
