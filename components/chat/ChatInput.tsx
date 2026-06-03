@@ -7,7 +7,7 @@ import { useChat } from './ChatContext';
 import TextareaAutosize from 'react-textarea-autosize';
 
 export function ChatInput() {
-  const { channel } = useChatContext();
+  const { channel, client } = useChatContext();
   const chat = useChat();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState('');
@@ -33,7 +33,7 @@ export function ChatInput() {
 
     if (isEditing && chat.editingMessage) {
       try {
-        await channel.updateMessage({
+        await client?.updateMessage({
           id: chat.editingMessage.id,
           text: text.trim(),
           updated_at: new Date().toISOString(),
