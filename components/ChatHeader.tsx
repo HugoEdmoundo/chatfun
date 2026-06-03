@@ -28,7 +28,7 @@ function getInitials(name: string): string {
 export function ChatHeader() {
   const { user } = useUser();
   const router = useRouter();
-  const { channel, setActiveChannel } = useChatContext();
+  const { channel, setActiveChannel, client } = useChatContext();
   const chat = useChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -79,12 +79,12 @@ export function ChatHeader() {
   };
 
   const handleBlockUser = async () => {
-    if (!channel || !user?.id) return;
+    if (!channel || !user?.id || !client) return;
     try {
       const members = Object.values(channel.state?.members || {});
       const target = members.find((m: any) => m.user?.id !== user.id);
       if (target?.user?.id) {
-        await channel.ban({ user_id: target.user.id });
+        await client.banUser({ target_user_id: target.user.id, type: 'channel', id: channel.id });
         await channel.hide(user.id);
       }
       setActiveChannel(undefined);
