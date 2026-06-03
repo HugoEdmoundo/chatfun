@@ -70,7 +70,7 @@ export function ChatHeader() {
   const handleDeleteChat = async () => {
     if (!channel || !user?.id) return;
     try {
-      await channel.hide({ userId: user.id });
+      await channel.hide(user.id);
       setActiveChannel(undefined);
     } catch (error) {
       console.error('Error deleting chat:', error);
@@ -79,10 +79,14 @@ export function ChatHeader() {
   };
 
   const handleBlockUser = async () => {
-    if (!channel) return;
+    if (!channel || !user?.id) return;
     try {
-      await channel.mute({ user_id: user?.id || '' });
-      await channel.hide({ userId: user?.id || '' });
+      const members = Object.values(channel.state?.members || {});
+      const target = members.find((m: any) => m.user?.id !== user.id);
+      if (target?.user?.id) {
+        await channel.ban({ user_id: target.user.id });
+        await channel.hide(user.id);
+      }
       setActiveChannel(undefined);
     } catch (error) {
       console.error('Error blocking user:', error);
