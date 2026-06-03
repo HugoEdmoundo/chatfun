@@ -122,7 +122,7 @@ export default function FAQDocs() {
             Contact Support
           </a>
           <a
-            href='https://github.com/ragini-pandey/telegram-clone/issues'
+            href='https://github.com/HugoEdmoundo/chatfun/issues'
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border/60 text-foreground font-medium text-sm hover:bg-muted/50 transition-all'

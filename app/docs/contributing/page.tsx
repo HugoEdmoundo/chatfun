@@ -28,7 +28,7 @@ cd chatfun</pre>
           </li>
           <li>
             <span className='font-medium text-foreground'>Set up upstream</span>
-            <pre className='text-xs bg-muted/30 p-2 rounded-lg mt-1 ml-4'>git remote add upstream https://github.com/ragini-pandey/telegram-clone.git</pre>
+            <pre className='text-xs bg-muted/30 p-2 rounded-lg mt-1 ml-4'>git remote add upstream https://github.com/HugoEdmoundo/chatfun.git</pre>
           </li>
           <li>
             <span className='font-medium text-foreground'>Create a branch</span>
