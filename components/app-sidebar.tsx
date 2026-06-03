@@ -1,22 +1,58 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useUser, useClerk, SignOutButton } from '@clerk/nextjs';
-import { ChannelList } from 'stream-chat-react';
+import { ChannelList, useChatContext } from 'stream-chat-react';
 import type { ChannelFilters, ChannelSort } from 'stream-chat';
 import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/solid';
 import { ChatPreview } from './ChatPreview';
 import { SavedMessages } from './chat/SavedMessages';
-import { Search, MessageSquare, Radio, Moon, Sun, Settings, LogOut } from 'lucide-react';
+import { Search, MessageSquare, Radio, Moon, Sun, Settings, LogOut, Loader2 } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import type { Doc } from '@/convex/_generated/dataModel';
+import { useCreateNewChat } from '@/hooks/useCreateNewChat';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type TabType = 'all' | 'groups' | 'channels';
 
 export function AppSidebar() {
   const { user } = useUser();
   const clerk = useClerk();
+  const { setActiveChannel } = useChatContext();
+  const router = useRouter();
+  const createNewChat = useCreateNewChat();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const searchActive = debouncedSearch.trim().length > 0;
+
+  const userResults = useQuery(api.users.searchUsers, searchActive ? { searchTerm: debouncedSearch } : 'skip');
+  const users: Doc<'users'>[] = (userResults || []).filter((u) => u.userId !== user?.id);
+
+  const userChannels = useQuery(api.channels.getChannelsByUser, user?.id ? { userId: user.id } : 'skip');
+  const channelResults: (Doc<'channels'> & { role: 'admin' | 'subscriber' })[] = (userChannels || [])
+    .filter((ch) => ch.name.toLowerCase().includes(debouncedSearch.toLowerCase()))
+    .slice(0, 5);
+
+  const handleSelectUser = async (selectedUser: Doc<'users'>) => {
+    if (!user) return;
+    try {
+      const channel = await createNewChat({
+        members: [user.id, selectedUser.userId],
+        createdBy: user.id,
+      });
+      setActiveChannel(channel);
+      setSearchQuery('');
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Failed to create chat:', err);
+    }
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem('theme');
@@ -121,6 +157,67 @@ export function AppSidebar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className='w-full h-[38px] pl-9 pr-4 bg-[#f4f4f5] dark:bg-[#242f3d] rounded-[22px] text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] dark:placeholder:text-[#8e9299] outline-none transition-colors'
             />
+
+            {searchActive && (users.length > 0 || channelResults.length > 0) && (
+              <div className='absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-[#17212b] rounded-xl shadow-lg border border-[#e5e5ea] dark:border-[#1f2c38] py-2 overflow-hidden'>
+                {users.length > 0 && (
+                  <div>
+                    <div className='px-4 py-1.5 text-xs font-medium text-[#8e8e93] dark:text-[#8e9299] uppercase tracking-wider'>
+                      People
+                    </div>
+                    {users.slice(0, 5).map((u) => (
+                      <button
+                        key={u._id}
+                        onClick={() => {
+                          setSearchQuery('');
+                          handleSelectUser(u);
+                        }}
+                        className='w-full flex items-center gap-3 px-4 py-2 text-sm text-[#000] dark:text-[#fff] hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] transition-colors'
+                      >
+                        <div className='w-7 h-7 rounded-full bg-[#2AABEE] flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 overflow-hidden'>
+                          {u.imageUrl ? (
+                            <img src={u.imageUrl} alt='' className='w-full h-full object-cover' />
+                          ) : (
+                            u.name.charAt(0)
+                          )}
+                        </div>
+                        <div className='flex-1 min-w-0 text-left'>
+                          <p className='text-sm font-medium truncate'>{u.name}</p>
+                          <p className='text-xs text-[#8e8e93] dark:text-[#8e9299] truncate'>{u.email}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {channelResults.length > 0 && (
+                  <div>
+                    {users.length > 0 && <div className='h-px bg-[#e5e5ea] dark:bg-[#1f2c38] my-1' />}
+                    <div className='px-4 py-1.5 text-xs font-medium text-[#8e8e93] dark:text-[#8e9299] uppercase tracking-wider'>
+                      Channels
+                    </div>
+                    {channelResults.map((ch) => (
+                      <Link
+                        key={ch._id}
+                        href={`/channels/${ch._id}`}
+                        onClick={() => setSearchQuery('')}
+                        className='flex items-center gap-3 px-4 py-2 text-sm text-[#000] dark:text-[#fff] hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] transition-colors'
+                      >
+                        <div className='w-7 h-7 rounded-full bg-[#06D6A0] flex items-center justify-center text-white flex-shrink-0'>
+                          <Radio className='w-3.5 h-3.5' />
+                        </div>
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-sm font-medium truncate'>{ch.name}</p>
+                          <p className='text-xs text-[#8e8e93] dark:text-[#8e9299] truncate'>
+                            {ch.subscriberCount} subscriber{ch.subscriberCount !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
