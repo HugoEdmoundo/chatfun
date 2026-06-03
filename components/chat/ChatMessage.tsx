@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import type { MessageResponse } from 'stream-chat';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 import { ChevronDown } from 'lucide-react';
@@ -8,6 +9,7 @@ import { ChatMessageBubble } from './ChatMessageBubble';
 import { ChatActionsMenu } from './ChatActionsMenu';
 import { useChat } from './ChatContext';
 import { ChatContextMenu } from './ChatContextMenu';
+import { getGroupColor } from '@/lib/hashColor';
 
 function formatTimestamp(date: Date): string {
   const now = new Date();
@@ -21,21 +23,6 @@ function formatTimestamp(date: Date): string {
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   }
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function getStatusIcon(status?: string) {
-  switch (status) {
-    case 'sending':
-      return <span className='text-[11px] text-[#8e8e93]'>...</span>;
-    case 'sent':
-      return <span className='text-[11px] text-[#8e8e93]'>&#10003;</span>;
-    case 'received':
-      return <span className='text-[11px] text-[#8e8e93]'>&#10003;&#10003;</span>;
-    case 'read':
-      return <span className='text-[11px] text-[#2AABEE]'>&#10003;&#10003;</span>;
-    default:
-      return null;
-  }
 }
 
 export function ChatMessage() {
@@ -62,6 +49,11 @@ export function ChatMessage() {
   const isGroup = (channelData?.member_count ?? 0) > 2;
   const senderName = (message.user?.name || message.user?.id || 'Unknown');
   const canDelete = isMine || channelData?.created_by?.id === client.user?.id;
+
+  const senderColor = useMemo(() => {
+    if (message.user?.id) return getGroupColor(message.user.id);
+    return '#2AABEE';
+  }, [message.user?.id]);
 
   const timestamp = useMemo(() => {
     if (!message.created_at) return '';
@@ -139,16 +131,23 @@ export function ChatMessage() {
     });
 
     return (
-      <div className='flex items-center gap-1 bg-white dark:bg-[#2c2c2e] rounded-full px-2 py-0.5 border border-[#e5e5ea] dark:border-[#3a3a3c] shadow-sm'>
+      <div className='flex items-center gap-1 bg-white dark:bg-[#17212b] rounded-full px-2 py-0.5 border border-[#e5e5ea] dark:border-[#1f2c38] shadow-sm'>
         {Object.entries(grouped).map(([emoji, count]) => (
           <span key={emoji} className='flex items-center gap-0.5 text-sm cursor-pointer hover:opacity-80'>
             {emoji}
-            {count > 1 && <span className='text-[11px] text-[#8e8e93]'>{count}</span>}
+            {count > 1 && <span className='text-[11px] text-[#8e9299]'>{count}</span>}
           </span>
         ))}
       </div>
     );
   }, [message]);
+
+  const bubbleStatus = useMemo(() => ({
+    sending: message.status === 'sending',
+    sent: message.status === 'sent',
+    received: message.status === 'received',
+    read: message.status === 'read',
+  }), [message.status]);
 
   return (
     <>
@@ -164,7 +163,7 @@ export function ChatMessage() {
             className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors mt-3 ${
               isSelected
                 ? 'bg-[#2AABEE] border-[#2AABEE]'
-                : 'border-[#8e8e93] hover:border-[#2AABEE]'
+                : 'border-[#8e8e93] dark:border-[#8e9299] hover:border-[#2AABEE]'
             }`}
           >
             {isSelected && (
@@ -177,33 +176,38 @@ export function ChatMessage() {
 
         <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[85%] min-w-0`}>
           {isGroup && !isMine && (
-            <span className='text-xs font-semibold text-[#2AABEE] mb-0.5 ml-1'>{senderName}</span>
+            <span className='text-xs font-semibold mb-0.5 ml-1' style={{ color: senderColor }}>
+              {senderName}
+            </span>
           )}
           {forwardedFrom && (
-            <span className='text-[11px] italic text-[#8e8e93] mb-0.5 ml-1'>
+            <span className='text-[11px] italic text-[#8e8e93] dark:text-[#8e9299] mb-0.5 ml-1'>
               Forwarded from {forwardedFrom}
             </span>
           )}
 
           <div className='flex items-end gap-1.5'>
-            <div className='relative'>
-              <ChatMessageBubble isMine={isMine}>
-                {message.text && <p className='whitespace-pre-wrap break-words'>{message.text}</p>}
-                {message.html && !message.text && (
-                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                )}
-                {isEdited && <span className='text-[11px] text-[#8e8e93] ml-1'>(edited)</span>}
-              </ChatMessageBubble>
-            </div>
-
             <button
               onClick={handleActionsClick}
-              className={`opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e] text-[#8e8e93] mb-1 ${
+              className={`opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299] mb-1 ${
                 isMine ? '' : 'order-first'
               }`}
             >
               <ChevronDown className='w-4 h-4' />
             </button>
+
+            <ChatMessageBubble
+              isMine={isMine}
+              timestamp={timestamp}
+              status={bubbleStatus}
+              edited={isEdited}
+              views={(message as any).viewCount}
+            >
+              {message.text && <p className='whitespace-pre-wrap break-words'>{message.text}</p>}
+              {message.html && !message.text && (
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.html) }} />
+              )}
+            </ChatMessageBubble>
           </div>
 
           {renderReactions && (
@@ -211,11 +215,6 @@ export function ChatMessage() {
               {renderReactions}
             </div>
           )}
-
-          <div className={`flex items-center gap-1 mt-0.5 px-1 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
-            {message.status && getStatusIcon(message.status)}
-            <span className='text-[11px] text-[#8e8e93]'>{timestamp}</span>
-          </div>
         </div>
       </div>
 

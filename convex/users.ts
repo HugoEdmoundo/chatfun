@@ -48,6 +48,65 @@ export const searchUsers = query({
     },
 })
 
+export const blockUser = mutation({
+    args: { blockedId: v.string() },
+    handler: async (ctx, { blockedId }) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const blockerId = identity.subject;
+
+        const existing = await ctx.db
+            .query("blocks")
+            .withIndex("by_blockerId_blockedId", (q) => q.eq("blockerId", blockerId).eq("blockedId", blockedId))
+            .first();
+
+        if (existing) return existing._id;
+
+        return await ctx.db.insert("blocks", {
+            blockerId,
+            blockedId,
+            createdAt: Date.now(),
+        });
+    },
+})
+
+export const unblockUser = mutation({
+    args: { blockedId: v.string() },
+    handler: async (ctx, { blockedId }) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const blockerId = identity.subject;
+
+        const existing = await ctx.db
+            .query("blocks")
+            .withIndex("by_blockerId_blockedId", (q) => q.eq("blockerId", blockerId).eq("blockedId", blockedId))
+            .first();
+
+        if (existing) {
+            await ctx.db.delete(existing._id);
+        }
+    },
+})
+
+export const isBlocked = query({
+    args: { blockedId: v.string() },
+    handler: async (ctx, { blockedId }) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return false;
+
+        const blockerId = identity.subject;
+
+        const existing = await ctx.db
+            .query("blocks")
+            .withIndex("by_blockerId_blockedId", (q) => q.eq("blockerId", blockerId).eq("blockedId", blockedId))
+            .first();
+
+        return !!existing;
+    },
+})
+
 export const getUsersBatch = query({
     args: { userIds: v.array(v.string()) },
     handler: async (ctx, { userIds }) => {

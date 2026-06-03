@@ -4,22 +4,23 @@ import React from 'react';
 import UserSyncWrapper from '@/components/UserSyncWrapper';
 import { Chat } from 'stream-chat-react';
 import streamClient from '@/lib/stream';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
+import { MenuRail } from '@/components/MenuRail';
+import { VideoCallOverlay } from '@/components/chat/VideoCallOverlay';
 import 'stream-chat-react/dist/css/v2/index.css';
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <UserSyncWrapper>
       <Chat client={streamClient} theme='messaging light'>
-        <SidebarProvider
-          style={{ '--sidebar-width': '23rem' } as React.CSSProperties}
-        >
+        <div className='flex h-screen w-full overflow-hidden bg-white dark:bg-[#0e1621]'>
+          <MenuRail />
           <AppSidebar />
-          <SidebarInset className='bg-white dark:bg-[#0f0f1a]'>
+          <main className='flex-1 flex flex-col min-w-0 relative'>
             {children}
-          </SidebarInset>
-        </SidebarProvider>
+          </main>
+        </div>
+        <VideoCallOverlay />
       </Chat>
     </UserSyncWrapper>
   );

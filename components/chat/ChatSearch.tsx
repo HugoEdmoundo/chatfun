@@ -38,7 +38,7 @@ export function ChatSearch() {
   if (!chat.showSearch) return null;
 
   return (
-    <div className='flex items-center gap-2 px-4 py-2 border-b border-[#e5e5ea] dark:border-[#3a3a3c] bg-white dark:bg-[#1c1c1e]'>
+    <div className='flex items-center gap-2 px-4 py-2 border-b border-[#e5e5ea] dark:border-[#1f2c38] bg-white dark:bg-[#17212b]'>
       <Search className='w-4 h-4 text-[#8e8e93] flex-shrink-0' />
       <input
         ref={inputRef}
@@ -51,7 +51,7 @@ export function ChatSearch() {
       />
       <button
         onClick={handleClose}
-        className='w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e] text-[#8e8e93]'
+        className='w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299]'
       >
         <X className='w-4 h-4' />
       </button>

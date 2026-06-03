@@ -2,6 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+    blocks: defineTable({
+        blockerId: v.string(),
+        blockedId: v.string(),
+        createdAt: v.number(),
+    })
+        .index("by_blockerId", ["blockerId"])
+        .index("by_blockedId", ["blockedId"])
+        .index("by_blockerId_blockedId", ["blockerId", "blockedId"]),
+
     callHistory: defineTable({
         channelId: v.string(),
         startedBy: v.string(),

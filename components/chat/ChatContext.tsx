@@ -34,6 +34,8 @@ interface ChatContextValue {
   setShowDeleteDialog: (v: boolean) => void;
   deleteTarget: MessageResponse | null;
   setDeleteTarget: (msg: MessageResponse | null) => void;
+  deleteTargetIds: string[];
+  setDeleteTargetIds: (ids: string[]) => void;
 }
 
 const ChatCtx = createContext<ChatContextValue | null>(null);
@@ -50,6 +52,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [forwardTargets, setForwardTargets] = useState<ForwardTarget[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<MessageResponse | null>(null);
+  const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([]);
 
   const toggleSelectMessage = useCallback((id: string) => {
     setSelectedMessages((prev) => {
@@ -64,11 +67,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const exitMultiSelect = useCallback(() => {
     setSelectedMessages(new Set());
     setMultiSelectMode(false);
-  }, []);
-
-  const enterMultiSelect = useCallback((msg: MessageResponse) => {
-    setSelectedMessages(new Set([msg.id]));
-    setMultiSelectMode(true);
   }, []);
 
   const addForwardMessage = useCallback((msg: MessageResponse) => {
@@ -108,6 +106,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setShowDeleteDialog,
     deleteTarget,
     setDeleteTarget,
+    deleteTargetIds,
+    setDeleteTargetIds,
   };
 
   return <ChatCtx.Provider value={value}>{children}</ChatCtx.Provider>;

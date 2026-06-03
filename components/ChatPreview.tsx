@@ -81,19 +81,20 @@ export function ChatPreview(props: ChannelPreviewUIComponentProps) {
   };
 
   const unreadCount = unread ?? 0;
+  const isMuted = channelData?.muted;
 
   return (
     <div
       onClick={handleClick}
       className={
-        `flex items-center gap-3 px-4 py-[10px] cursor-pointer transition-colors ` +
+        `flex items-center gap-3 px-4 py-[14px] cursor-pointer transition-colors duration-150 ` +
         (isActive
-          ? 'bg-[#e8f4fd] dark:bg-[#2b5278]'
-          : 'hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e]')
+          ? 'bg-[#2481cc] text-white'
+          : 'hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c]')
       }
     >
       <div className='relative flex-shrink-0'>
-        <div className='w-12 h-12 rounded-full overflow-hidden bg-[#2AABEE] flex items-center justify-center text-white font-semibold text-sm'>
+        <div className='w-[48px] h-[48px] rounded-full overflow-hidden bg-[#2AABEE] flex items-center justify-center text-white font-semibold text-sm'>
           {imageUrl ? (
             <img src={imageUrl} alt={displayName} className='w-full h-full object-cover' />
           ) : (
@@ -104,21 +105,23 @@ export function ChatPreview(props: ChannelPreviewUIComponentProps) {
 
       <div className='flex-1 min-w-0'>
         <div className='flex items-center justify-between'>
-          <span className='text-sm font-medium text-[#000] dark:text-[#fff] truncate'>
+          <span className={`text-sm font-medium truncate ${isActive ? 'text-white' : 'text-[#000] dark:text-[#fff]'}`}>
             {displayName}
           </span>
           {messageTime && (
-            <span className='text-[11px] text-[#8e8e93] flex-shrink-0 ml-2'>
+            <span className={`text-[11px] flex-shrink-0 ml-2 ${isActive ? 'text-white/70' : 'text-[#8e8e93] dark:text-[#8e9299]'}`}>
               {messageTime}
             </span>
           )}
         </div>
         <div className='flex items-center justify-between mt-0.5'>
-          <span className='text-[13px] text-[#8e8e93] truncate'>
+          <span className={`text-[13px] truncate ${isActive ? 'text-white/70' : 'text-[#8e8e93] dark:text-[#8e9299]'}`}>
             {previewText}
           </span>
           {unreadCount > 0 && (
-            <span className='flex-shrink-0 ml-2 min-w-[18px] h-[18px] rounded-full bg-[#2AABEE] flex items-center justify-center'>
+            <span className={`flex-shrink-0 ml-2 min-w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+              isMuted ? 'bg-[#555]' : 'bg-[#31B545]'
+            }`}>
               <span className='text-[11px] font-semibold text-white px-1'>
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>

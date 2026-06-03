@@ -20,6 +20,29 @@ interface ActionItem {
   danger?: boolean;
 }
 
+function useClickOutside(ref: React.RefObject<HTMLDivElement | null>, onClose: () => void, active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClick);
+    }, 0);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [active, onClose, ref]);
+}
+
 export function ChatActionsMenu({
   message,
   isOwn,
@@ -51,23 +74,7 @@ export function ChatActionsMenu({
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!position) return;
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    setTimeout(() => document.addEventListener('click', handleClick), 0);
-    document.addEventListener('keydown', handleEsc);
-    return () => {
-      document.removeEventListener('click', handleClick);
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [position, onClose]);
+  useClickOutside(ref, onClose, !!position);
 
   if (!position) return null;
 
@@ -117,31 +124,35 @@ export function ChatActionsMenu({
     },
   ];
 
+  const visibleActions = actions.filter((a) => a.show);
+  const menuW = 180;
+  const menuH = visibleActions.length * 41;
+  const left = position.left + menuW > window.innerWidth ? window.innerWidth - menuW - 8 : position.left;
+  const top = position.top + menuH > window.innerHeight ? window.innerHeight - menuH - 8 : position.top;
+
   return (
     <div
       ref={ref}
-      className='fixed z-50 min-w-[180px] bg-white dark:bg-[#2c2c2e] rounded-xl shadow-lg border border-[#e5e5ea] dark:border-[#3a3a3c] py-1 overflow-hidden'
-      style={{ top: position.top, left: position.left }}
+      className='fixed z-50 min-w-[180px] bg-white dark:bg-[#17212b] rounded-xl shadow-lg border border-[#e5e5ea] dark:border-[#1f2c38] py-1 overflow-hidden'
+      style={{ top, left }}
     >
-      {actions
-        .filter((a) => a.show)
-        .map((action) => (
-          <button
-            key={action.label}
-            onClick={() => {
-              action.onClick();
-              onClose();
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-              action.danger
-                ? 'text-red-500 hover:bg-[#fff0f0] dark:hover:bg-[#3a1a1a]'
-                : 'text-[#000] dark:text-[#fff] hover:bg-[#f4f4f5] dark:hover:bg-[#3a3a3c]'
-            }`}
-          >
-            <span className='text-[#8e8e93]'>{action.icon}</span>
-            {action.label}
-          </button>
-        ))}
+      {visibleActions.map((action) => (
+        <button
+          key={action.label}
+          onClick={() => {
+            action.onClick();
+            onClose();
+          }}
+          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+            action.danger
+              ? 'text-red-500 hover:bg-[#fff0f0] dark:hover:bg-[#3a1a1a]'
+              : 'text-[#000] dark:text-[#fff] hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c]'
+          }`}
+        >
+          <span className='text-[#8e8e93] dark:text-[#8e9299]'>{action.icon}</span>
+          {action.label}
+        </button>
+      ))}
     </div>
   );
 }

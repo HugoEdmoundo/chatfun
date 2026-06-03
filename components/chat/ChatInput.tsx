@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pencil, Send, X } from 'lucide-react';
+import { Pencil, Send, X, Smile, Paperclip, Mic } from 'lucide-react';
 import { useChatContext } from 'stream-chat-react';
 import { useChat } from './ChatContext';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export function ChatInput() {
   const { channel } = useChatContext();
@@ -32,11 +33,11 @@ export function ChatInput() {
 
     if (isEditing && chat.editingMessage) {
       try {
-        await (channel as any).updateMessage(
-          chat.editingMessage.id,
-          text.trim(),
-          { updated_at: new Date().toISOString() } as any
-        );
+        await channel.updateMessage({
+          id: chat.editingMessage.id,
+          text: text.trim(),
+          updated_at: new Date().toISOString(),
+        });
         chat.setEditingMessage(null);
       } catch (err) {
         console.error('Failed to edit message:', err);
@@ -73,40 +74,57 @@ export function ChatInput() {
   );
 
   return (
-    <div className='sticky bottom-0 z-20 px-4 py-3 border-t border-[#e5e5ea] dark:border-[#3a3a3c] bg-white dark:bg-[#1c1c1e]'>
+    <div className='sticky bottom-0 z-20 bg-white dark:bg-[#0e1621]'>
       {isEditing && (
-        <div className='flex items-center gap-2 mb-2 px-1'>
+        <div className='flex items-center gap-2 px-4 py-2 border-t border-[#e5e5ea] dark:border-[#1f2c38] bg-white dark:bg-[#17212b]'>
           <Pencil className='w-4 h-4 text-[#2AABEE]' />
           <span className='text-xs text-[#2AABEE] font-medium'>Edit message</span>
           <button
             onClick={handleCancelEdit}
-            className='ml-auto w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e] text-[#8e8e93]'
+            className='ml-auto w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299]'
           >
             <X className='w-3.5 h-3.5' />
           </button>
         </div>
       )}
-      <div
-        className={`flex items-end gap-2 bg-[#f0f2f5] dark:bg-[#2c2c2e] rounded-2xl px-4 py-2 ${
-          isEditing ? 'ring-2 ring-[#2AABEE]' : ''
-        }`}
-      >
-        <textarea
-          ref={inputRef}
-          value={text}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder='Message...'
-          rows={1}
-          className='flex-1 bg-transparent border-none outline-none resize-none text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] max-h-[120px] py-1 leading-5'
-        />
-        <button
-          onClick={handleSend}
-          disabled={!text.trim()}
-          className='flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-[#2AABEE] hover:bg-[#1E96C8] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors'
-        >
-          <Send className='w-4 h-4' />
-        </button>
+      <div className='px-4 py-3 border-t border-[#e5e5ea] dark:border-[#1f2c38]'>
+        <div className='max-w-3xl mx-auto'>
+          <div
+            className={`flex items-end gap-1 bg-[#f0f2f5] dark:bg-[#242f3d] rounded-2xl px-2 py-1 ${
+              isEditing ? 'ring-2 ring-[#2AABEE]' : ''
+            }`}
+          >
+            <button className='flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#e8eaed] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299] transition-colors' aria-label='Emoji'>
+              <Smile className='w-5 h-5' />
+            </button>
+            <TextareaAutosize
+              ref={inputRef}
+              value={text}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder='Message...'
+              minRows={1}
+              maxRows={4}
+              className='flex-1 bg-transparent border-none outline-none resize-none text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] dark:placeholder:text-[#8e9299] py-[10px] px-1 leading-5'
+            />
+            <button className='flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#e8eaed] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299] transition-colors' aria-label='Attach file'>
+              <Paperclip className='w-5 h-5' />
+            </button>
+            {text.trim() ? (
+              <button
+                onClick={handleSend}
+                className='flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-[#2AABEE] hover:bg-[#1E96C8] text-white transition-colors'
+                aria-label='Send'
+              >
+                <Send className='w-4 h-4' />
+              </button>
+            ) : (
+              <button className='flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#e8eaed] dark:hover:bg-[#202e3c] text-[#8e8e93] dark:text-[#8e9299] transition-colors' aria-label='Voice message'>
+                <Mic className='w-5 h-5' />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

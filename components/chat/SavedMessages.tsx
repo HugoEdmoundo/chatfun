@@ -30,8 +30,8 @@ export function SavedMessages() {
       onClick={handleClick}
       className={`w-full flex items-center gap-3 px-4 py-[10px] cursor-pointer transition-colors ${
         isActive
-          ? 'bg-[#e8f4fd] dark:bg-[#2b5278]'
-          : 'hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e]'
+          ? 'bg-[#2481cc] text-white'
+          : 'hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c]'
       }`}
     >
       <div className='w-12 h-12 rounded-full bg-[#2AABEE] flex items-center justify-center flex-shrink-0'>

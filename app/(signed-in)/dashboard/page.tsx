@@ -8,6 +8,7 @@ import { ChatDeleteDialog } from '@/components/chat/ChatDeleteDialog';
 import { ChatForwardDialog } from '@/components/chat/ChatForwardDialog';
 import { MultiSelectBar } from '@/components/chat/MultiSelectBar';
 import { PinnedMessages } from '@/components/chat/PinnedMessages';
+import { ChatBackground } from '@/components/chat/ChatBackground';
 import { ChatHeader } from '@/components/ChatHeader';
 import { MessageSquare } from 'lucide-react';
 import { useChatContext } from 'stream-chat-react';
@@ -20,41 +21,47 @@ function DashboardInner() {
 
   if (!channel) {
     return (
-      <div className='flex flex-col items-center justify-center h-full'>
-        <div className='w-20 h-20 rounded-full bg-[#f4f4f5] dark:bg-[#2a2a3e] flex items-center justify-center mb-6'>
-          <MessageSquare className='w-10 h-10 text-[#8e8e93]' />
+      <div className='flex flex-col items-center justify-center h-full relative'>
+        <ChatBackground />
+        <div className='relative z-10'>
+          <div className='w-20 h-20 rounded-full bg-[#f4f4f5] dark:bg-[#242f3d] flex items-center justify-center mb-6'>
+            <MessageSquare className='w-10 h-10 text-[#8e8e93] dark:text-[#8e9299]' />
+          </div>
+          <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>Select a chat</h2>
+          <p className='text-sm text-[#8e8e93] dark:text-[#8e9299] text-center max-w-[250px]'>
+            Choose a conversation from the sidebar or start a new one
+          </p>
         </div>
-        <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>Select a chat</h2>
-        <p className='text-sm text-[#8e8e93] text-center max-w-[250px]'>
-          Choose a conversation from the sidebar or start a new one
-        </p>
       </div>
     );
   }
 
   return (
-    <Channel Message={ChatMessage}>
-      <Window>
-        <ChatHeader />
-        <ChatSearch />
-        <PinnedMessages />
-        <MessageList messageActions={[]} />
-        {multiSelectMode && <MultiSelectBar />}
-        <ChatInput />
-      </Window>
-      <Thread />
-    </Channel>
+    <div className='flex flex-col w-full h-full relative'>
+      <ChatBackground />
+      <div className='relative z-10 flex flex-col h-full'>
+        <Channel Message={ChatMessage}>
+          <Window>
+            <ChatHeader />
+            <ChatSearch />
+            <PinnedMessages />
+            <MessageList messageActions={[]} />
+            {multiSelectMode && <MultiSelectBar />}
+            <ChatInput />
+          </Window>
+          <Thread />
+        </Channel>
+        <ChatDeleteDialog />
+        <ChatForwardDialog />
+      </div>
+    </div>
   );
 }
 
 function Dashboard() {
   return (
     <ChatProvider>
-      <div className='flex flex-col w-full h-full bg-white dark:bg-[#0f0f1a]'>
-        <DashboardInner />
-        <ChatDeleteDialog />
-        <ChatForwardDialog />
-      </div>
+      <DashboardInner />
     </ChatProvider>
   );
 }

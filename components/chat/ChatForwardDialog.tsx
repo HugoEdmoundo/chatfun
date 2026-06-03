@@ -53,15 +53,15 @@ export function ChatForwardDialog() {
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40'>
-      <div className='bg-white dark:bg-[#2c2c2e] rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-xl'>
-        <div className='p-4 border-b border-[#e5e5ea] dark:border-[#3a3a3c]'>
+      <div className='bg-white dark:bg-[#17212b] rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-xl'>
+        <div className='p-4 border-b border-[#e5e5ea] dark:border-[#1f2c38]'>
           <div className='flex items-center justify-between mb-3'>
             <h3 className='text-lg font-semibold text-[#000] dark:text-[#fff]'>
               Forward message
             </h3>
             <button
               onClick={() => { chat.setShowForwardDialog(false); chat.clearForwardMessages(); }}
-              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#3a3a3c] text-[#8e8e93]'
+              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c] text-[#8e8e93]'
             >
               <X className='w-5 h-5' />
             </button>
@@ -73,7 +73,7 @@ export function ChatForwardDialog() {
               placeholder='Search chats...'
               value={searchTarget}
               onChange={(e) => setSearchTarget(e.target.value)}
-              className='w-full h-10 pl-9 pr-3 bg-[#f4f4f5] dark:bg-[#2a2a3e] rounded-xl text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] outline-none'
+              className='w-full h-10 pl-9 pr-3 bg-[#f4f4f5] dark:bg-[#242f3d] rounded-xl text-sm text-[#000] dark:text-[#fff] placeholder:text-[#8e8e93] dark:placeholder:text-[#8e9299] outline-none'
               autoFocus
             />
           </div>
@@ -96,7 +96,7 @@ export function ChatForwardDialog() {
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-colors ${
                     isSelected
                       ? 'bg-[#e8f4fd] dark:bg-[#2b5278]'
-                      : 'hover:bg-[#f4f4f5] dark:hover:bg-[#2a2a3e]'
+                      : 'hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c]'
                   }`}
                 >
                   <div className='w-10 h-10 rounded-full bg-[#2AABEE] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0'>
@@ -116,7 +116,7 @@ export function ChatForwardDialog() {
           )}
         </div>
 
-        <div className='p-4 border-t border-[#e5e5ea] dark:border-[#3a3a3c] flex items-center justify-between'>
+        <div className='p-4 border-t border-[#e5e5ea] dark:border-[#1f2c38] flex items-center justify-between'>
           <span className='text-sm text-[#8e8e93]'>
             {chat.forwardMessages.length} message{chat.forwardMessages.length !== 1 ? 's' : ''} selected
           </span>
