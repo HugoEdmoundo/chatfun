@@ -84,7 +84,7 @@ export function ChatHeader() {
       const members = Object.values(channel.state?.members || {});
       const target = members.find((m: any) => m.user?.id !== user.id);
       if (target?.user?.id) {
-        await client.banUser({ target_user_id: target.user.id, type: 'channel', id: channel.id });
+        await client.banUser(target.user.id, { type: 'channel', id: channel.id });
         await channel.hide(user.id);
       }
       setActiveChannel(undefined);
