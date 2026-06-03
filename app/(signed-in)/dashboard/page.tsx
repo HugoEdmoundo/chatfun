@@ -21,7 +21,7 @@ function DashboardInner() {
 
   if (!channel) {
     return (
-      <div className='flex flex-col items-center justify-center h-full relative'>
+      <div className='flex flex-col items-center justify-center flex-1 relative'>
         <ChatBackground />
         <div className='relative z-10'>
           <div className='w-20 h-20 rounded-full bg-[#f4f4f5] dark:bg-[#242f3d] flex items-center justify-center mb-6'>
@@ -37,9 +37,9 @@ function DashboardInner() {
   }
 
   return (
-    <div className='flex flex-col w-full h-full relative'>
+    <div className='flex flex-col w-full flex-1 relative'>
       <ChatBackground />
-      <div className='relative z-10 flex flex-col h-full'>
+      <div className='relative z-10 flex flex-col flex-1'>
         <Channel Message={ChatMessage}>
           <Window>
             <ChatHeader />
