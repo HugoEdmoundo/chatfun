@@ -3,6 +3,7 @@
 import { Bookmark } from 'lucide-react';
 import { useChatContext } from 'stream-chat-react';
 import { useUser } from '@clerk/nextjs';
+import streamClient from '@/lib/stream';
 
 export function SavedMessages() {
   const { channel: activeChannel, setActiveChannel } = useChatContext();
@@ -11,8 +12,7 @@ export function SavedMessages() {
   const handleClick = async () => {
     if (!user || !setActiveChannel) return;
     try {
-      const client = (await import('@/lib/stream')).default;
-      const saved = client.channel('messaging', `saved-${user.id}`, {
+      const saved = streamClient.channel('messaging', `saved-${user.id}`, {
         name: 'Saved Messages',
         members: [user.id],
       } as any);

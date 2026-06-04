@@ -3,12 +3,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { MessageResponse } from 'stream-chat';
 
-interface ForwardTarget {
-  id: string;
-  name: string;
-  image?: string;
-}
-
 interface ChatContextValue {
   editingMessage: MessageResponse | null;
   setEditingMessage: (msg: MessageResponse | null) => void;
@@ -28,8 +22,6 @@ interface ChatContextValue {
   clearForwardMessages: () => void;
   showForwardDialog: boolean;
   setShowForwardDialog: (v: boolean) => void;
-  forwardTargets: ForwardTarget[];
-  setForwardTargets: (targets: ForwardTarget[]) => void;
   showDeleteDialog: boolean;
   setShowDeleteDialog: (v: boolean) => void;
   deleteTarget: MessageResponse | null;
@@ -49,7 +41,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [pinnedMessageIds, setPinnedMessageIds] = useState<Set<string>>(new Set());
   const [forwardMessages, setForwardMessages] = useState<MessageResponse[]>([]);
   const [showForwardDialog, setShowForwardDialog] = useState(false);
-  const [forwardTargets, setForwardTargets] = useState<ForwardTarget[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<MessageResponse | null>(null);
   const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([]);
@@ -92,7 +83,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setSearchQuery,
     showSearch,
     setShowSearch,
-    pinnedMessageIds,
+    pinnedMessageIds: new Set(pinnedMessageIds),
     setPinnedMessageIds,
     forwardMessages,
     addForwardMessage,
@@ -100,8 +91,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     clearForwardMessages,
     showForwardDialog,
     setShowForwardDialog,
-    forwardTargets,
-    setForwardTargets,
     showDeleteDialog,
     setShowDeleteDialog,
     deleteTarget,

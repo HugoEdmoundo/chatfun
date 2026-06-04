@@ -57,7 +57,7 @@ export function ChatMessageBubble({
             <button
               onClick={() => {
                 const audio = new Audio(att.asset_url);
-                audio.play().catch(() => {});
+                audio.play().catch((err) => console.error('Voice play failed:', err));
               }}
               className='w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center flex-shrink-0 hover:bg-black/20 dark:hover:bg-white/20 transition-colors'
             >

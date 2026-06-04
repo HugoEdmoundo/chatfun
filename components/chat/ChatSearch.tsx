@@ -1,14 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Search, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useChat } from './ChatContext';
 
 export function ChatSearch() {
   const chat = useChat();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [results, setResults] = useState<number>(0);
-  const [currentIdx, setCurrentIdx] = useState<number>(0);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -13,6 +13,22 @@ export function MultiSelectBar() {
   const count = chat.selectedMessages.size;
 
   const handleForward = () => {
+    const seen = new Set<string>();
+    const allMessages: any[] = [];
+    const pushUnique = (msgs: any[] | undefined) => {
+      if (!msgs) return;
+      for (const m of msgs) {
+        if (!seen.has(m.id)) {
+          seen.add(m.id);
+          allMessages.push(m);
+        }
+      }
+    };
+    const state = channel?.state as any;
+    pushUnique(state?.messages);
+    pushUnique(state?.latestMessages);
+    const selected = allMessages.filter((m) => chat.selectedMessages.has(m.id));
+    selected.forEach((m) => chat.addForwardMessage(m));
     chat.setShowForwardDialog(true);
   };
 

@@ -2,7 +2,7 @@
 
 import { useSidebar } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CallControls,
   CallingState,
@@ -20,7 +20,12 @@ function VideoCall() {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [showInviteOverlay, setShowInviteOverlay] = useState(true);
+  const [pageUrl, setPageUrl] = useState('');
   const { setOpen } = useSidebar();
+
+  useEffect(() => {
+    setPageUrl(window.location.href);
+  }, []);
 
   const handleLeave = () => {
     router.push('/dashboard');
@@ -118,7 +123,7 @@ function VideoCall() {
               <div className='bg-gray-50 rounded-lg p-4 border border-gray-200'>
                 <div className='flex items-center gap-3'>
                   <div className='flex-1 text-sm text-gray-700 font-mono break-all'>
-                    {window.location.href}
+                    {pageUrl}
                   </div>
                   <button
                     onClick={copyToClipboard}

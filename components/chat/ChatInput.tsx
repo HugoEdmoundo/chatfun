@@ -48,10 +48,13 @@ export function ChatInput() {
   const handleSend = useCallback(async () => {
     if (!channel) return;
 
+    let voiceBlob: Blob | null = null;
     if (recording) {
       await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => resolve(), 3000);
         const check = () => {
           if (audioBlobRef.current) {
+            clearTimeout(timeout);
             resolve();
           } else {
             setTimeout(check, 10);
@@ -60,18 +63,17 @@ export function ChatInput() {
         stopRecording();
         setTimeout(check, 50);
       });
+      voiceBlob = audioBlobRef.current;
+      audioBlobRef.current = null;
     }
 
-    const blob = audioBlobRef.current || audioBlob;
     const hasText = text.trim().length > 0;
-    if (!hasText && !pendingFile && !blob) return;
+    if (!hasText && !pendingFile && !voiceBlob) return;
 
     if (isEditing && chat.editingMessage) {
       try {
-        await client?.updateMessage({
-          id: chat.editingMessage.id,
-          text: text.trim(),
-          updated_at: new Date().toISOString(),
+        await client?.partialUpdateMessage(chat.editingMessage.id, {
+          set: { text: text.trim() },
         });
         chat.setEditingMessage(null);
       } catch (err) {
@@ -83,14 +85,14 @@ export function ChatInput() {
         const msgData: Record<string, any> = {};
         if (hasText) msgData.text = text.trim();
 
-        if (blob) {
-          const audioFile = new File([blob], 'voice-message.webm', { type: 'audio/webm;codecs=opus' });
+        if (voiceBlob) {
+          const audioFile = new File([voiceBlob], 'voice-message.webm', { type: 'audio/webm;codecs=opus' });
           const response = await channel.sendFile(audioFile);
           msgData.attachments = [{
             type: 'voice',
             asset_url: response.file,
             mime_type: 'audio/webm;codecs=opus',
-            file_size: blob!.size,
+            file_size: voiceBlob.size,
             duration: elapsedFormatted,
           }];
         } else if (pendingFile) {
@@ -126,7 +128,7 @@ export function ChatInput() {
 
     setText('');
     setPendingFile(null);
-  }, [text, isEditing, chat, channel, client, pendingFile, recording, stopRecording, audioBlob, elapsedFormatted]);
+  }, [text, isEditing, chat, channel, client, pendingFile, recording, stopRecording, elapsedFormatted]);
 
   const handleCancelEdit = useCallback(() => {
     chat.setEditingMessage(null);

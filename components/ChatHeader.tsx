@@ -67,8 +67,9 @@ export function ChatHeader() {
   }, [channel, user]);
 
   function formatLastSeen(lastActive: string): string {
-    const now = Date.now();
-    const diff = now - new Date(lastActive).getTime();
+    const ts = new Date(lastActive).getTime();
+    if (isNaN(ts)) return 'offline';
+    const diff = Date.now() - ts;
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'last seen just now';
     if (mins < 60) return `last seen ${mins}m ago`;

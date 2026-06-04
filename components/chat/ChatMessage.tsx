@@ -62,7 +62,10 @@ export function ChatMessage() {
 
   const handleReply = useCallback(() => {
     if (!channel) return;
-    channel.sendMessage({ text: `/reply ${message.id} ${message.text || ''}` }).catch(console.error);
+    channel.sendMessage({
+      text: message.text ? `@${message.user?.name || ''} ${message.text}` : '',
+      quoted_message_id: message.id,
+    }).catch(console.error);
   }, [channel, message]);
 
   const handleEdit = useCallback(() => {
@@ -84,22 +87,34 @@ export function ChatMessage() {
   }, [message, chat]);
 
   const handleCopy = useCallback(() => {
-    const text = message.text || message.html || '';
-    navigator.clipboard.writeText(text).catch(console.error);
+    const msg = message as any;
+    if (message.text || message.html) {
+      navigator.clipboard.writeText(message.text || message.html || '').catch(console.error);
+      return;
+    }
+    const att = msg.attachments?.[0];
+    if (att) {
+      if (att.type === 'voice') {
+        navigator.clipboard.writeText(`Voice message (${att.duration || '0:00'})`).catch(console.error);
+      } else if (att.image_url || att.type === 'image') {
+        navigator.clipboard.writeText(att.image_url || att.asset_url || '').catch(console.error);
+      } else if (att.asset_url) {
+        navigator.clipboard.writeText(`${att.title || 'File'}: ${att.asset_url}`).catch(console.error);
+      }
+    }
   }, [message]);
 
   const handlePin = useCallback(async () => {
-    if (!channel) return;
-    const ch = channel as any;
+    if (!channel || !client) return;
     try {
       const isPinned = chat.pinnedMessageIds.has(message.id);
       if (isPinned) {
-        await ch.unpinMessage?.(message.id);
+        await client.unpinMessage(message.id);
         const next = new Set(chat.pinnedMessageIds);
         next.delete(message.id);
         chat.setPinnedMessageIds(next);
       } else {
-        await ch.pinMessage?.(message.id);
+        await client.pinMessage(message.id, null);
         const next = new Set(chat.pinnedMessageIds);
         next.add(message.id);
         chat.setPinnedMessageIds(next);
@@ -107,7 +122,7 @@ export function ChatMessage() {
     } catch (err) {
       console.error('Failed to pin/unpin:', err);
     }
-  }, [channel, message, chat]);
+  }, [channel, client, message, chat]);
 
   const handleActionsClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -223,7 +238,7 @@ export function ChatMessage() {
         message={message as any}
         isOwn={isMine}
         canDelete={canDelete}
-        canPin={false}
+        canPin={true}
         position={menuPos}
         onClose={() => setMenuPos(null)}
         onReply={handleReply}
@@ -239,7 +254,7 @@ export function ChatMessage() {
         message={message as any}
         isOwn={isMine}
         canDelete={canDelete}
-        canPin={false}
+        canPin={true}
         position={ctxMenuPos}
         onClose={() => setCtxMenuPos(null)}
         onReply={handleReply}

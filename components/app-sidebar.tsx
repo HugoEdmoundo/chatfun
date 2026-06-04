@@ -6,7 +6,7 @@ import type { ChannelFilters, ChannelSort } from 'stream-chat';
 import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/solid';
 import { ChatPreview } from './ChatPreview';
 import { SavedMessages } from './chat/SavedMessages';
-import { Search, MessageSquare, Radio, Moon, Sun, Settings, LogOut, Loader2 } from 'lucide-react';
+import { Search, MessageSquare, Radio, Moon, Sun, Settings, LogOut } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -36,7 +36,7 @@ export function AppSidebar() {
 
   const userChannels = useQuery(api.channels.getChannelsByUser, user?.id ? { userId: user.id } : 'skip');
   const channelResults: (Doc<'channels'> & { role: 'admin' | 'subscriber' })[] = (userChannels || [])
-    .filter((ch) => ch.name.toLowerCase().includes(debouncedSearch.toLowerCase()))
+    .filter((ch: any) => ch.name?.toLowerCase().includes(debouncedSearch.toLowerCase()))
     .slice(0, 5);
 
   const handleSelectUser = async (selectedUser: Doc<'users'>) => {
@@ -110,7 +110,7 @@ export function AppSidebar() {
                 <div className='absolute left-0 top-full mt-1.5 z-50 w-60 bg-white dark:bg-[#17212b] rounded-xl shadow-lg border border-[#e5e5ea] dark:border-[#1f2c38] py-2 overflow-hidden'>
                   <div className='px-4 py-2'>
                     <p className='text-sm font-medium text-[#000] dark:text-[#fff] truncate'>
-                      {user?.firstName} {user?.lastName}
+                      {[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User'}
                     </p>
                     <p className='text-xs text-[#8e8e93] dark:text-[#8e9299] truncate mt-0.5'>
                       {user?.primaryEmailAddress?.emailAddress || ''}
@@ -175,12 +175,12 @@ export function AppSidebar() {
                           {u.imageUrl ? (
                             <img src={u.imageUrl} alt='' className='w-full h-full object-cover' />
                           ) : (
-                            u.name.charAt(0)
+                            (u.name || '?').charAt(0)
                           )}
                         </div>
                         <div className='flex-1 min-w-0 text-left'>
                           <p className='text-sm font-medium truncate'>{u.name}</p>
-                          <p className='text-xs text-[#8e8e93] dark:text-[#8e9299] truncate'>{u.email}</p>
+                          <p className='text-xs text-[#8e8e93] dark:text-[#8e9299] truncate'>{u.email || ''}</p>
                         </div>
                       </button>
                     ))}

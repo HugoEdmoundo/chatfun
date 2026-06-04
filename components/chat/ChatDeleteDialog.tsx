@@ -6,8 +6,7 @@ import { useChatContext } from 'stream-chat-react';
 import { useChat } from './ChatContext';
 
 export function ChatDeleteDialog() {
-  const { channel } = useChatContext();
-  const ch = channel as any;
+  const { channel, client } = useChatContext();
   const chat = useChat();
   const [loading, setLoading] = useState(false);
 
@@ -16,11 +15,11 @@ export function ChatDeleteDialog() {
   const ids = isMulti ? chat.deleteTargetIds : (targetId ? [targetId] : []);
 
   const handleDeleteForMe = async () => {
-    if (!ch || ids.length === 0) return;
+    if (!client || ids.length === 0) return;
     setLoading(true);
     try {
       for (const id of ids) {
-        await ch.hideMessage?.(id);
+        await client.deleteMessage(id, { hardDelete: false });
       }
       chat.setShowDeleteDialog(false);
       chat.setDeleteTarget(null);
@@ -33,11 +32,11 @@ export function ChatDeleteDialog() {
   };
 
   const handleDeleteForEveryone = async () => {
-    if (!ch || ids.length === 0) return;
+    if (!client || ids.length === 0) return;
     setLoading(true);
     try {
       for (const id of ids) {
-        await ch.deleteMessage(id);
+        await client.deleteMessage(id);
       }
       chat.setShowDeleteDialog(false);
       chat.setDeleteTarget(null);

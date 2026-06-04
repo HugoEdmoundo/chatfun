@@ -5,7 +5,6 @@ import UserSyncWrapper from '@/components/UserSyncWrapper';
 import { Chat } from 'stream-chat-react';
 import streamClient from '@/lib/stream';
 import { AppSidebar } from '@/components/app-sidebar';
-import { VideoCallOverlay } from '@/components/chat/VideoCallOverlay';
 import 'stream-chat-react/dist/css/v2/index.css';
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -18,7 +17,6 @@ function Layout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         </div>
-        <VideoCallOverlay />
       </Chat>
     </UserSyncWrapper>
   );
