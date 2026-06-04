@@ -109,8 +109,12 @@ export default function ArchitectureDocs() {
             <p className='text-muted-foreground text-xs mt-1'>Message sent via Stream Chat SDK → Stream servers distribute to recipients in real-time via WebSocket.</p>
           </div>
           <div className='p-3 rounded-lg bg-muted/30 border border-border/20'>
-            <p className='font-medium text-foreground'>4. User Creates Channel</p>
-            <p className='text-muted-foreground text-xs mt-1'>Channel data stored in Convex → Posts fetched reactively via Convex queries → UI updates automatically.</p>
+            <p className='font-medium text-foreground'>4. User Creates/Browses Channel</p>
+            <p className='text-muted-foreground text-xs mt-1'>Channel data stored in Convex → Access control checks (isPublic or membership) → Posts fetched via paginated query → UI updates reactively.</p>
+          </div>
+          <div className='p-3 rounded-lg bg-muted/30 border border-border/20'>
+            <p className='font-medium text-foreground'>5. User Mutates Data</p>
+            <p className='text-muted-foreground text-xs mt-1'>Mutation runs → rateLimiter checks 1s interval → action performed (create/edit/delete/react/comment) → UI updates instantly via Convex reactivity.</p>
           </div>
         </div>
       </section>
@@ -123,20 +127,24 @@ export default function ArchitectureDocs() {
 │   ├── page.tsx      # Landing page
 │   ├── layout.tsx    # Root layout (Clerk + Convex)
 │   ├── (signed-in)/  # Authenticated routes
-│   │   ├── dashboard/ # Chat interface
-│   │   └── channels/  # Channel pages
+│   │   ├── dashboard/ # Chat interface (Stream Chat + Video)
+│   │   └── channels/  # Channel pages (CRUD posts, comments, reactions)
 │   └── docs/         # Documentation pages
 ├── components/       # React components
 │   ├── landing/      # Landing page components
 │   ├── channel/      # Channel feature components
-│   └── ui/           # shadcn/ui components
+│   └── ui/           # shadcn/ui + shared UI components
 ├── convex/           # Convex backend
-│   ├── schema.ts     # Database schema
-│   ├── users.ts      # User functions
-│   └── channels.ts   # Channel functions
-├── hooks/            # Custom React hooks
-├── lib/              # Utility libraries
-└── actions/          # Next.js Server Actions`}
+│   ├── schema.ts     # Database schema (5 tables: users, channels, channelMembers, channelPosts, channelComments, callHistory)
+│   ├── users.ts      # User functions (upsert, search, getUsersBatch)
+│   ├── channels.ts   # Channel functions (CRUD, posts, comments, reactions, upload)
+│   ├── callHistory.ts # Call tracking (startCall, endCall)
+│   └── rateLimiter.ts # In-memory rate limiter (1s interval per user)
+├── hooks/            # Custom React hooks (useCountUp, useCreateNewChat, useUserSearch)
+├── lib/              # Utility libraries (Stream client, utils)
+├── actions/          # Next.js Server Actions (createToken)
+├── public/           # Static assets (screenshots, favicon)
+└── types/            # TypeScript type declarations (clerk.d.ts)`}
         </pre>
       </section>
 

@@ -2,7 +2,9 @@
 import { createToken } from '@/actions/createToken';
 import { InlineSpinner } from '@/components/LoadingSpinner';
 import { StatusCard } from '@/components/StatusCard';
+import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
+import { useMutation } from 'convex/react';
 import {
   Call,
   CallingState,
@@ -13,13 +15,8 @@ import {
 } from '@stream-io/video-react-sdk';
 import { AlertTriangle, Video } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '@stream-io/video-react-sdk/dist/css/styles.css';
-
-
-if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
-  throw new Error("NEXT_PUBLIC_STREAM_API_KEY' is not set");
-}
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
@@ -27,6 +24,14 @@ function Layout({ children }: { children: React.ReactNode }) {
   const [call, setCall] = useState<Call | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
+  const apiKeyRef = useRef(process.env.NEXT_PUBLIC_STREAM_API_KEY);
+  const startCall = useMutation(api.callHistory.startCall);
+  const endCall = useMutation(api.callHistory.endCall);
+  const callHistoryIdRef = useRef<any>(null);
+
+  if (!apiKeyRef.current) {
+    throw new Error("NEXT_PUBLIC_STREAM_API_KEY is not set");
+  }
 
   const streamUser = useMemo(() => {
     if (!user) return null;
@@ -63,7 +68,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   }, [streamUser, tokenProvider]);
 
   useEffect(() => {
-    if (!client || !id) return;
+    if (!client || !id || !user) return;
     setError(null);
     const streamCall = client.call('default', id as string);
 
@@ -71,6 +76,14 @@ function Layout({ children }: { children: React.ReactNode }) {
       try {
         await streamCall.join({ create: true });
         setCall(streamCall);
+
+        const historyId = await startCall({
+          channelId: id as string,
+          startedBy: user.id,
+          startedByName: user.fullName || user.emailAddresses[0]?.emailAddress || 'Unknown User',
+          callId: `${id}_${Date.now()}`,
+        });
+        callHistoryIdRef.current = historyId;
       } catch (error) {
         console.error('Failed to join call:', error);
         setError(error instanceof Error ? error.message : 'Failed to join call');
@@ -78,11 +91,15 @@ function Layout({ children }: { children: React.ReactNode }) {
     };
     joinCall();
     return () => {
+      if (callHistoryIdRef.current) {
+        endCall({ historyId: callHistoryIdRef.current }).catch(console.error);
+        callHistoryIdRef.current = null;
+      }
       if (streamCall && streamCall.state.callingState === CallingState.JOINED) {
         streamCall.leave().catch(console.error);
       }
     };
-  }, [id, client]);
+  }, [id, client, user, startCall, endCall]);
 
   if (error) {
     return (

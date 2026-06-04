@@ -43,6 +43,33 @@ export default function APIDocs() {
                 args: '{ searchTerm: string }',
                 returns: 'User[]',
               },
+              {
+                name: 'users.getUsersBatch',
+                type: 'query',
+                description: 'Batch fetch multiple users by their Clerk user IDs.',
+                args: '{ userIds: string[] }',
+                returns: '(User | null)[]',
+              },
+            ]}
+          />
+
+          <ApiSection
+            title='Call History Functions'
+            icon={Database}
+            color='#F59E0B'
+            endpoints={[
+              {
+                name: 'callHistory.startCall',
+                type: 'mutation',
+                description: 'Record the start of a video call. Inserts a new call record with channel ID, caller info, and timestamp.',
+                args: '{ channelId: string, startedBy: string, startedByName: string, callId: string }',
+              },
+              {
+                name: 'callHistory.endCall',
+                type: 'mutation',
+                description: 'Record the end of a video call. Updates the call record with endedAt timestamp and duration in seconds.',
+                args: '{ channelId: string }',
+              },
             ]}
           />
 
@@ -59,10 +86,22 @@ export default function APIDocs() {
                 returns: 'Id<"channels">',
               },
               {
+                name: 'channels.updateChannel',
+                type: 'mutation',
+                description: 'Update channel name, description, or visibility (admin only).',
+                args: '{ channelId: Id<"channels">, name?: string, description?: string, isPublic?: boolean }',
+              },
+              {
+                name: 'channels.deleteChannelMutation',
+                type: 'mutation',
+                description: 'Delete a channel and all its posts/comments/memberships (admin only).',
+                args: '{ channelId: Id<"channels"> }',
+              },
+              {
                 name: 'channels.getChannel',
                 type: 'query',
-                description: 'Get a single channel by ID.',
-                args: '{ channelId: Id }',
+                description: 'Get a single channel by ID. Returns null if private and not a member.',
+                args: '{ channelId: Id<"channels">, userId: string }',
                 returns: 'Channel | null',
               },
               {
@@ -83,40 +122,109 @@ export default function APIDocs() {
                 name: 'channels.joinChannel',
                 type: 'mutation',
                 description: 'Join a channel as a subscriber.',
-                args: '{ channelId: Id, userId: string }',
+                args: '{ channelId: Id<"channels">, userId: string }',
               },
               {
                 name: 'channels.leaveChannel',
                 type: 'mutation',
-                description: 'Leave a channel.',
-                args: '{ channelId: Id, userId: string }',
+                description: 'Leave a channel. Throws if user is admin (admins must delete instead).',
+                args: '{ channelId: Id<"channels">, userId: string }',
               },
               {
                 name: 'channels.isChannelMember',
                 type: 'query',
                 description: 'Check if a user is a member of a channel.',
-                args: '{ channelId: Id, userId: string }',
+                args: '{ channelId: Id<"channels">, userId: string }',
                 returns: 'boolean',
               },
               {
                 name: 'channels.getUserRoleInChannel',
                 type: 'query',
-                description: 'Get a user&apos;s role in a channel.',
-                args: '{ channelId: Id, userId: string }',
+                description: "Get a user's role in a channel.",
+                args: '{ channelId: Id<"channels">, userId: string }',
                 returns: '"admin" | "subscriber" | null',
               },
               {
                 name: 'channels.createPost',
                 type: 'mutation',
-                description: 'Create a post in a channel (admin only).',
-                args: '{ channelId: Id, authorId: string, content: string, imageUrl?: string }',
+                description: 'Create a text post in a channel (admin only).',
+                args: '{ channelId: Id<"channels">, authorId: string, content: string }',
+              },
+              {
+                name: 'channels.createPostWithImage',
+                type: 'mutation',
+                description: 'Create a post with an uploaded image (admin only).',
+                args: '{ channelId: Id<"channels">, authorId: string, content: string, imageStorageId: Id<"_storage"> }',
+              },
+              {
+                name: 'channels.updatePost',
+                type: 'mutation',
+                description: 'Edit a post content (admin only).',
+                args: '{ postId: Id<"channelPosts">, content: string }',
+              },
+              {
+                name: 'channels.deletePostMutation',
+                type: 'mutation',
+                description: 'Delete a post and its comments (admin only).',
+                args: '{ postId: Id<"channelPosts"> }',
               },
               {
                 name: 'channels.getChannelPosts',
                 type: 'query',
-                description: 'Get all posts for a channel, newest first.',
-                args: '{ channelId: Id }',
-                returns: 'ChannelPost[]',
+                description: 'Get paginated posts for a channel, newest first. Requires membership for private channels.',
+                args: '{ channelId: Id<"channels">, userId: string, paginationOpts: PaginationOpts }',
+                returns: 'PaginatedResult<ChannelPost>',
+              },
+              {
+                name: 'channels.generateUploadUrl',
+                type: 'mutation',
+                description: 'Generate a URL for uploading an image to Convex storage.',
+                args: '{}',
+                returns: 'string',
+              },
+              {
+                name: 'channels.createComment',
+                type: 'mutation',
+                description: 'Add a comment to a post. Optional parentCommentId for replies.',
+                args: '{ postId: Id<"channelPosts">, authorId: string, content: string, channelId: Id<"channels">, parentCommentId?: Id<"channelComments"> }',
+              },
+              {
+                name: 'channels.getPostComments',
+                type: 'query',
+                description: 'Get all comments for a post with author info. Requires channel membership.',
+                args: '{ postId: Id<"channelPosts">, channelId: Id<"channels">, userId: string }',
+                returns: 'CommentWithAuthor[]',
+              },
+              {
+                name: 'channels.getPostCommentCount',
+                type: 'query',
+                description: 'Get the total number of comments on a post.',
+                args: '{ postId: Id<"channelPosts"> }',
+                returns: 'number',
+              },
+              {
+                name: 'channels.updateComment',
+                type: 'mutation',
+                description: 'Edit a comment (author or admin only).',
+                args: '{ commentId: Id<"channelComments">, content: string }',
+              },
+              {
+                name: 'channels.deleteComment',
+                type: 'mutation',
+                description: 'Delete a comment and its replies (author or admin only).',
+                args: '{ commentId: Id<"channelComments"> }',
+              },
+              {
+                name: 'channels.toggleReaction',
+                type: 'mutation',
+                description: 'Toggle an emoji reaction on a comment.',
+                args: '{ commentId: Id<"channelComments">, emoji: string, userId: string }',
+              },
+              {
+                name: 'channels.togglePostReaction',
+                type: 'mutation',
+                description: 'Toggle an emoji reaction on a post.',
+                args: '{ postId: Id<"channelPosts">, emoji: string, userId: string }',
               },
             ]}
           />
@@ -162,11 +270,13 @@ function MyComponent() {
           These environment variables are required for the application to function:
         </p>
         <pre className='text-xs bg-muted/30 p-4 rounded-xl overflow-x-auto border border-border/20 leading-relaxed'>
-{`NEXT_PUBLIC_APP_URL=http://localhost:3000
+{`# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_****
 CLERK_SECRET_KEY=sk_****
+CLERK_JWT_ISSUER_DOMAIN=https://clerk.****
 
 # Stream Chat & Video
 NEXT_PUBLIC_STREAM_API_KEY=XXXX
@@ -174,6 +284,7 @@ STREAM_API_SECRET_KEY=YYYY
 STREAM_APP_ID=1234567
 
 # Convex
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
 CONVEX_DEPLOYMENT=dev:local`}
         </pre>
       </section>

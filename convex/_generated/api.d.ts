@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as callHistory from "../callHistory.js";
 import type * as channels from "../channels.js";
+import type * as rateLimiter from "../rateLimiter.js";
 import type * as users from "../users.js";
 
 import type {
@@ -18,7 +20,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  callHistory: typeof callHistory;
   channels: typeof channels;
+  rateLimiter: typeof rateLimiter;
   users: typeof users;
 }>;
 

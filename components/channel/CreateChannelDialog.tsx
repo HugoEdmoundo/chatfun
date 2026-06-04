@@ -26,6 +26,12 @@ export function CreateChannelDialog({ children }: { children: React.ReactNode })
   const router = useRouter();
   const createChannel = useMutation(api.channels.createChannel);
 
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setIsPublic(true);
+  };
+
   const handleCreate = async () => {
     if (!name.trim() || !user) return;
     setLoading(true);
@@ -37,8 +43,7 @@ export function CreateChannelDialog({ children }: { children: React.ReactNode })
         isPublic,
       });
       setOpen(false);
-      setName('');
-      setDescription('');
+      resetForm();
       router.push(`/channels/${channelId}`);
     } catch (error) {
       console.error('Failed to create channel:', error);
@@ -48,7 +53,10 @@ export function CreateChannelDialog({ children }: { children: React.ReactNode })
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen) resetForm();
+    }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[460px] p-0'>
         <div className='glass-strong rounded-lg'>

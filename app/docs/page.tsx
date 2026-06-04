@@ -1,4 +1,4 @@
-import { BookOpen, MessageCircle, Radio, Shield, Users, Video, Zap } from 'lucide-react';
+import { BookOpen, Heart, Image, MessageCircle, Radio, Shield, Users, Video, Zap } from 'lucide-react';
 
 export default function DocsOverview() {
   return (
@@ -8,9 +8,9 @@ export default function DocsOverview() {
           Welcome to <span className='gradient-text'>ChatFun</span>
         </h1>
         <p className='text-lg text-muted-foreground leading-relaxed'>
-          ChatFun is a modern, full-featured messaging platform that combines real-time chat, HD video calls,
-          broadcast channels, and group conversations into one seamless experience. Built with cutting-edge
-          web technologies, it offers a fast, secure, and beautiful communication experience.
+          ChatFun is a modern messaging platform inspired by Telegram — combining real-time chat,
+          HD video calls, broadcast channels with CRUD posts, threaded comments with emoji reactions,
+          and image uploads into one seamless experience.
         </p>
       </div>
 
@@ -18,8 +18,8 @@ export default function DocsOverview() {
         {[
           {
             icon: MessageCircle,
-            title: 'Real-time Messaging',
-            desc: 'Lightning-fast messages with typing indicators, read receipts, and file sharing. Every message delivered instantly.',
+            title: 'Telegram-style Chat',
+            desc: 'Real-time messaging with blue/gray bubbles, reactions, replies, quotes, file uploads, and typing indicators via Stream Chat.',
             color: '#2AABEE',
           },
           {
@@ -31,25 +31,25 @@ export default function DocsOverview() {
           {
             icon: Radio,
             title: 'Broadcast Channels',
-            desc: 'Create channels with unlimited subscribers. Hybrid mode lets you broadcast posts with attached discussion threads.',
+            desc: 'Create public or private channels with unlimited subscribers. Admins create/edit/delete posts with image uploads. Subscribers join with one click.',
             color: '#06D6A0',
           },
           {
-            icon: Users,
-            title: 'Group Chats',
-            desc: 'Powerful group conversations with admin controls, member management, and customizable settings.',
+            icon: Heart,
+            title: 'Reactions & Comments',
+            desc: 'React to posts and comments with 👍❤️😮. Threaded replies with 1-level nesting. Inline edit and delete for authors and admins.',
             color: '#EC4899',
           },
           {
             icon: Shield,
-            title: 'Privacy & Security',
-            desc: 'End-to-end encryption, secure authentication via Clerk, and granular privacy controls keep your data safe.',
+            title: 'Access Control',
+            desc: 'Private channels require membership. Admin-only post creation. Comments require channel membership. Rate-limited mutations prevent spam.',
             color: '#2AABEE',
           },
           {
             icon: Zap,
-            title: 'Lightning Fast',
-            desc: 'Built with Next.js, Convex, and Stream SDK for optimal performance. Instant sync across all devices.',
+            title: 'Paginated & Optimized',
+            desc: 'Paginated posts (10 per load) with efficient user batching. Convex real-time sync with zero-query deduplication.',
             color: '#F59E0B',
           },
         ].map((feature) => {
@@ -73,8 +73,8 @@ export default function DocsOverview() {
         <h2 className='text-xl font-bold text-foreground mb-4'>Tech Stack Overview</h2>
         <div className='grid gap-4 sm:grid-cols-2'>
           {[
-            { label: 'Frontend', value: 'Next.js 15 (App Router) + React 19 + TypeScript' },
-            { label: 'Styling', value: 'TailwindCSS v4 + shadcn/ui + Liquid Glass' },
+            { label: 'Frontend', value: 'Next.js 16 (App Router) + React 19 + TypeScript' },
+            { label: 'Styling', value: 'TailwindCSS v4 + shadcn/ui + Framer Motion + Liquid Glass' },
             { label: 'Authentication', value: 'Clerk (email, SSO, magic links)' },
             { label: 'Backend / DB', value: 'Convex (serverless functions + real-time DB)' },
             { label: 'Messaging', value: 'Stream Chat (real-time messaging API)' },
@@ -102,7 +102,7 @@ export default function DocsOverview() {
             Getting Started
           </a>
           <a
-            href='https://github.com/ragini-pandey/telegram-clone'
+            href='https://github.com/HugoEdmoundo/chatfun'
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border/60 text-foreground font-medium text-sm hover:bg-muted/50 transition-all'

@@ -2,7 +2,7 @@
 
 import { useSidebar } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CallControls,
   CallingState,
@@ -11,7 +11,7 @@ import {
 } from '@stream-io/video-react-sdk';
 import { StatusCard } from '@/components/StatusCard';
 import { InlineSpinner } from '@/components/LoadingSpinner';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, UserPlus, X } from 'lucide-react';
 
 function VideoCall() {
   const { useCallCallingState, useParticipants } = useCallStateHooks();
@@ -19,7 +19,13 @@ function VideoCall() {
   const participants = useParticipants();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [showInviteOverlay, setShowInviteOverlay] = useState(true);
+  const [pageUrl, setPageUrl] = useState('');
   const { setOpen } = useSidebar();
+
+  useEffect(() => {
+    setPageUrl(window.location.href);
+  }, []);
 
   const handleLeave = () => {
     router.push('/dashboard');
@@ -80,10 +86,30 @@ function VideoCall() {
         <CallControls onLeave={handleLeave} />
       </div>
 
+      {/* Invite toggle button - visible when overlay is closed */}
+      {!showInviteOverlay && (
+        <button
+          onClick={() => setShowInviteOverlay(true)}
+          className='absolute top-4 right-4 z-20 p-2.5 bg-gray-900/80 hover:bg-gray-900 rounded-full transition-colors border border-gray-700'
+          title='Show invite link'
+        >
+          <UserPlus className='w-5 h-5 text-white' />
+        </button>
+      )}
+
       {/* Waiting overlay */}
-      {participants.length === 1 && (
-        <div className='absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm'>
-          <div className='bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl'>
+      {showInviteOverlay && (
+        <div className='absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-10'>
+          <div className='bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl relative'>
+            {/* Close button */}
+            <button
+              onClick={() => setShowInviteOverlay(false)}
+              className='absolute top-3 right-3 p-1.5 rounded-lg hover:bg-gray-100 transition-colors'
+              title='Close'
+            >
+              <X className='w-5 h-5 text-gray-500' />
+            </button>
+
             <div className='text-center space-y-6'>
               <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto'>
                 <Copy className='w-8 h-8 text-blue-600' />
@@ -97,7 +123,7 @@ function VideoCall() {
               <div className='bg-gray-50 rounded-lg p-4 border border-gray-200'>
                 <div className='flex items-center gap-3'>
                   <div className='flex-1 text-sm text-gray-700 font-mono break-all'>
-                    {window.location.href}
+                    {pageUrl}
                   </div>
                   <button
                     onClick={copyToClipboard}

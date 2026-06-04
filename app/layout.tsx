@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ChatFun — Modern Messaging Platform',
     description: 'Real-time chat, HD video calls, channels & group conversations.',
-    images: ['/71c607ae-be83-407c-af29-a74ecbaa9e1f.png'],
+    images: ['/screenshot1.png'],
   },
 };
 
@@ -35,7 +35,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var theme = localStorage.getItem('theme');
+                if (!theme) {
+                  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch(e) {}
+            })();
+          `
+        }} />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClerkProvider
           signInFallbackRedirectUrl='/dashboard'

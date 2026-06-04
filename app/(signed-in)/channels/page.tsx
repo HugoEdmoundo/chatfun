@@ -1,5 +1,6 @@
 'use client';
 
+import { Doc } from '@/convex/_generated/dataModel';
 import { useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 import { Loader2, Plus, Radio, Users } from 'lucide-react';
@@ -81,7 +82,7 @@ function ChannelCard({
   channel,
   isMember,
 }: {
-  channel: any;
+  channel: Doc<'channels'> & { role?: string };
   isMember?: boolean;
 }) {
   return (

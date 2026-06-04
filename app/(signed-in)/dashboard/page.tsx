@@ -1,113 +1,68 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { useSidebar } from '@/components/ui/sidebar';
-import { useUser } from '@clerk/nextjs';
-import { Eraser, LogOutIcon, VideoIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { Channel, ChannelHeader, MessageInput, MessageList, Thread, useChatContext, Window } from 'stream-chat-react';
+import { ChatProvider, useChat } from '@/components/chat/ChatContext';
+import { ChatMessage } from '@/components/chat/ChatMessage';
+import { ChatInput } from '@/components/chat/ChatInput';
+import { ChatSearch } from '@/components/chat/ChatSearch';
+import { ChatDeleteDialog } from '@/components/chat/ChatDeleteDialog';
+import { ChatForwardDialog } from '@/components/chat/ChatForwardDialog';
+import { MultiSelectBar } from '@/components/chat/MultiSelectBar';
+import { PinnedMessages } from '@/components/chat/PinnedMessages';
+import { ChatBackground } from '@/components/chat/ChatBackground';
+import { ChatHeader } from '@/components/ChatHeader';
+import { MessageSquare } from 'lucide-react';
+import { useChatContext } from 'stream-chat-react';
+import { Channel, MessageList, Thread, Window } from 'stream-chat-react';
 
-function Dashboard() {
-  const { user } = useUser();
-  const router = useRouter();
-  const { channel, setActiveChannel } = useChatContext();
-  const { setOpen } = useSidebar();
-  const [clearing, setClearing] = useState(false);
+function DashboardInner() {
+  const { channel } = useChatContext();
+  const chat = useChat();
+  const { multiSelectMode } = chat;
 
-  const handleCall = () => {
-    if (!channel) return;
-    router.push(`/dashboard/video-call/${channel.id}`);
-    setOpen(false);
-  };
-
-  const handleLeaveChat = async () => {
-    if (!channel || !user?.id) return;
-    const confirm = window.confirm('Are you sure you want to leave this chat?');
-    if (!confirm) return;
-    try {
-      await channel.removeMembers([user.id]);
-      setActiveChannel(undefined);
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Error leaving the chat:', error);
-    }
-  };
-
-  const handleClearHistory = async () => {
-    if (!channel) return;
-    const confirm = window.confirm('Delete all messages in this chat? This cannot be undone.');
-    if (!confirm) return;
-    setClearing(true);
-    try {
-      await channel.truncate({ hard_delete: true });
-    } catch (error) {
-      console.error('Error clearing history:', error);
-    } finally {
-      setClearing(false);
-    }
-  };
+  if (!channel) {
+    return (
+      <div className='flex flex-col items-center justify-center flex-1 relative'>
+        <ChatBackground />
+        <div className='relative z-10'>
+          <div className='w-20 h-20 rounded-full bg-[#f4f4f5] dark:bg-[#242f3d] flex items-center justify-center mb-6'>
+            <MessageSquare className='w-10 h-10 text-[#8e8e93] dark:text-[#8e9299]' />
+          </div>
+          <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>Select a chat</h2>
+          <p className='text-sm text-[#8e8e93] dark:text-[#8e9299] text-center max-w-[250px]'>
+            Choose a conversation from the sidebar or start a new one
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className='flex flex-col w-full flex-1'>
-      {channel ? (
-        <Channel>
+    <div className='flex flex-col w-full flex-1 relative'>
+      <ChatBackground />
+      <div className='relative z-10 flex flex-col flex-1'>
+        <Channel Message={ChatMessage}>
           <Window>
-            <div className='flex items-center justify-between'>
-              {channel.data?.member_count === 1 ? (
-                <ChannelHeader title='Everyone else has left this chat!' />
-              ) : (
-                <ChannelHeader />
-              )}
-
-              <div className='flex items-center gap-2'>
-                {(channel.data?.member_count ?? 1) > 1 && (
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={handleClearHistory}
-                    disabled={clearing}
-                    className='text-muted-foreground hover:text-foreground'
-                  >
-                    <Eraser className='w-4 h-4' />
-                    Clear
-                  </Button>
-                )}
-
-                <Button variant='outline' size='sm' onClick={handleCall}>
-                  <VideoIcon className='w-4 h-4' />
-                  Video Call
-                </Button>
-
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={handleLeaveChat}
-                  className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950'
-                >
-                  <LogOutIcon className='w-4 h-4' />
-                  Leave
-                </Button>
-              </div>
-            </div>
-
-            <MessageList messageActions={['edit', 'delete']} />
-
-            <div className='sticky bottom-0 w-full'>
-              <MessageInput />
-            </div>
+            <ChatHeader />
+            <ChatSearch />
+            <PinnedMessages />
+            <MessageList messageActions={[]} />
+            {multiSelectMode && <MultiSelectBar />}
+            <ChatInput />
           </Window>
           <Thread />
         </Channel>
-      ) : (
-        <div className='flex flex-col items-center justify-center h-full'>
-          <h2 className='text-2xl font-semibold text-muted-foreground mb-4'>No chat selected</h2>
-          <p className='text-muted-foreground'>
-            Select a chat from the sidebar or start a new conversation
-          </p>
-        </div>
-      )}
+        <ChatDeleteDialog />
+        <ChatForwardDialog />
+      </div>
     </div>
+  );
+}
+
+function Dashboard() {
+  return (
+    <ChatProvider>
+      <DashboardInner />
+    </ChatProvider>
   );
 }
 
