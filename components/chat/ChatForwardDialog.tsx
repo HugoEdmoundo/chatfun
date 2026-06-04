@@ -35,10 +35,15 @@ export function ChatForwardDialog() {
     setSending(true);
     try {
       for (const msg of chat.forwardMessages) {
-        await (targetChannel as any).sendMessage?.({
+        const msgData: Record<string, any> = {
           text: msg.text || '',
           forwardedFrom: user?.firstName || user?.id || 'Unknown',
-        });
+        };
+        const atts = (msg as any).attachments;
+        if (atts && atts.length > 0) {
+          msgData.attachments = atts;
+        }
+        await (targetChannel as any).sendMessage?.(msgData);
       }
       chat.clearForwardMessages();
       chat.setShowForwardDialog(false);

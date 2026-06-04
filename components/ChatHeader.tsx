@@ -13,7 +13,7 @@ import {
   VideoIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useChatContext } from 'stream-chat-react';
 
 function getInitials(name: string): string {
@@ -38,10 +38,51 @@ export function ChatHeader() {
   if (!channel) return null;
 
   const channelData = channel.data as Record<string, any> | undefined;
-  const displayName = channelData?.name || 'Unknown';
   const imageUrl = channelData?.image;
   const memberCount = channelData?.member_count ?? 0;
   const isGroup = memberCount > 2;
+
+  const displayName = useMemo(() => {
+    if (channelData?.name) return channelData.name;
+    try {
+      const members = channel.state?.members || {};
+      const otherMembers = Object.values(members).filter(
+        (m: any) => m.user?.id !== user?.id
+      );
+      if (otherMembers.length === 1) {
+        return otherMembers[0].user?.name || otherMembers[0].user?.id || 'Unknown';
+      }
+      if (otherMembers.length > 1) {
+        return otherMembers.map((m: any) => m.user?.name || m.user?.id).join(', ');
+      }
+    } catch {}
+    return 'Unknown';
+  }, [channel, user, channelData]);
+
+  const otherMember = useMemo(() => {
+    if (!channel || !user) return null;
+    return Object.values(channel.state?.members || {}).find(
+      (m: any) => m.user?.id !== user?.id
+    ) as any;
+  }, [channel, user]);
+
+  function formatLastSeen(lastActive: string): string {
+    const now = Date.now();
+    const diff = now - new Date(lastActive).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'last seen just now';
+    if (mins < 60) return `last seen ${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `last seen ${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `last seen ${days}d ago`;
+    return `last seen on ${new Date(lastActive).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  }
+
+  const onlineCount = useMemo(() => {
+    if (!channel?.state?.members) return 0;
+    return Object.values(channel.state.members).filter((m: any) => m.user?.online).length;
+  }, [channel]);
 
   const handleCall = async () => {
     if (!channel || !channel.id) return;
@@ -119,8 +160,12 @@ export function ChatHeader() {
               {channelData?.member_count === 1
                 ? 'Everyone else has left this chat'
                 : isGroup
-                  ? `${memberCount} members${channelData?.online_count ? `, ${channelData.online_count} online` : ''}`
-                  : 'online'}
+                  ? `${memberCount} members${onlineCount > 0 ? `, ${onlineCount} online` : ''}`
+                  : otherMember?.user?.online
+                    ? 'online'
+                    : otherMember?.user?.last_active
+                      ? formatLastSeen(otherMember.user.last_active)
+                      : 'offline'}
             </p>
           </div>
         </div>

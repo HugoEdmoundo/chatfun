@@ -71,14 +71,11 @@ export function AppSidebar() {
     members: { $in: user?.id ? [user.id] : [] },
   };
 
-  const tabFilters: Record<TabType, ChannelFilters> = {
-    all: { ...baseFilters, type: { $in: ['messaging', 'team'] } },
-    groups: { ...baseFilters, type: { $eq: 'team' } },
-    channels: { ...baseFilters, type: { $eq: 'messaging' } },
-  };
+  const showStreamList = activeTab !== 'channels';
 
   const filters: ChannelFilters = {
-    ...tabFilters[activeTab],
+    ...baseFilters,
+    ...(activeTab === 'all' ? { type: { $in: ['messaging', 'team'] } } : { type: { $eq: 'team' } }),
     ...(searchQuery ? { name: { $autocomplete: searchQuery } } : {}),
   };
 
@@ -248,23 +245,76 @@ export function AppSidebar() {
           <SavedMessages />
         </div>
 
-        <ChannelList
-          filters={filters}
-          options={options}
-          sort={sort}
-          Preview={ChatPreview}
-          EmptyStateIndicator={() => (
-            <div className='flex flex-col items-center justify-center py-12 px-4'>
-              <ChatBubbleOvalLeftEllipsisIcon className='w-16 h-16 mb-6 text-[#8e8e93] dark:text-[#8e9299] opacity-20' />
-              <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>
-                Ready to chat?
-              </h2>
-              <p className='text-sm text-[#8e8e93] dark:text-[#8e9299] text-center leading-relaxed max-w-[200px]'>
-                Your conversations will appear here once you start chatting with others.
-              </p>
-            </div>
-          )}
-        />
+        {activeTab === 'channels' ? (
+          // Broadcast channels from Convex
+          <div>
+            {(!userChannels || userChannels.length === 0) ? (
+              <div className='flex flex-col items-center justify-center py-12 px-4'>
+                <Radio className='w-16 h-16 mb-6 text-[#8e8e93] dark:text-[#8e9299] opacity-20' />
+                <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>
+                  No channels yet
+                </h2>
+                <p className='text-sm text-[#8e8e93] dark:text-[#8e9299] text-center leading-relaxed max-w-[200px]'>
+                  Channels you join or create will appear here.
+                </p>
+              </div>
+            ) : (
+              userChannels.map((ch) => (
+                <Link
+                  key={ch._id}
+                  href={`/channels/${ch._id}`}
+                  className='flex items-center gap-3 px-4 py-[14px] cursor-pointer transition-colors hover:bg-[#f4f4f5] dark:hover:bg-[#202e3c]'
+                >
+                  <div className='w-12 h-12 rounded-full overflow-hidden bg-[#06D6A0] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0'>
+                    {ch.imageUrl ? (
+                      <img src={ch.imageUrl} alt={ch.name} className='w-full h-full object-cover' />
+                    ) : (
+                      ch.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex items-center justify-between'>
+                      <span className='text-sm font-medium truncate text-[#000] dark:text-[#fff]'>
+                        {ch.name}
+                      </span>
+                    </div>
+                    <div className='flex items-center gap-1 mt-0.5'>
+                      <span className='text-xs text-[#8e8e93] dark:text-[#8e9299]'>
+                        {ch.subscriberCount} subscriber{ch.subscriberCount !== 1 ? 's' : ''}
+                      </span>
+                      {ch.role === 'admin' && (
+                        <span className='text-[10px] px-1.5 py-0.5 rounded-full bg-[#2AABEE]/10 text-[#2AABEE] font-medium'>
+                          Admin
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        ) : (
+          <ChannelList
+            key={`stream-${activeTab}`}
+            filters={filters}
+            options={options}
+            sort={sort}
+            Preview={ChatPreview}
+            EmptyStateIndicator={() => (
+              <div className='flex flex-col items-center justify-center py-12 px-4'>
+                <ChatBubbleOvalLeftEllipsisIcon className='w-16 h-16 mb-6 text-[#8e8e93] dark:text-[#8e9299] opacity-20' />
+                <h2 className='text-xl font-medium text-[#000] dark:text-[#fff] mb-2'>
+                  {activeTab === 'groups' ? 'No groups yet' : 'Ready to chat?'}
+                </h2>
+                <p className='text-sm text-[#8e8e93] dark:text-[#8e9299] text-center leading-relaxed max-w-[200px]'>
+                  {activeTab === 'groups'
+                    ? 'Group chats will appear here once you start or join one.'
+                    : 'Your conversations will appear here once you start chatting with others.'}
+                </p>
+              </div>
+            )}
+          />
+        )}
       </div>
     </div>
   );

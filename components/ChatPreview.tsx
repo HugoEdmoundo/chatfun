@@ -4,6 +4,11 @@ import { useUser } from '@clerk/nextjs';
 import { useMemo } from 'react';
 import type { ChannelPreviewUIComponentProps } from 'stream-chat-react';
 
+interface Attachment {
+  type?: string;
+  image_url?: string;
+}
+
 function formatTime(date: Date): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
@@ -58,23 +63,35 @@ export function ChatPreview(props: ChannelPreviewUIComponentProps) {
   const memberCount = channelData?.member_count ?? 0;
   const isGroup = memberCount > 2;
 
-  const lastMessageText = latestMessage || '';
   const messageTime = useMemo(() => {
     if (!lastMessage?.created_at) return '';
     return formatTime(new Date(lastMessage.created_at));
   }, [lastMessage]);
 
+  const lastMsgAttachments = (lastMessage as any)?.attachments as Attachment[] | undefined;
+  const hasAttachment = lastMsgAttachments && lastMsgAttachments.length > 0;
+
   const previewText = useMemo(() => {
-    if (!lastMessageText) return 'No messages yet';
+    if (!latestMessage && !hasAttachment) return 'No messages yet';
+    const previewStr = latestMessage || '';
+    const fallbackPreview = hasAttachment
+      ? lastMsgAttachments!.some((a) => a.type === 'voice')
+        ? '🎤 Voice message'
+        : lastMsgAttachments!.some((a) => a.type === 'image' || a.image_url)
+          ? '📷 Photo'
+          : '📄 File'
+      : '';
+    const displayPreview = previewStr || fallbackPreview;
+    if (!displayPreview) return 'No messages yet';
     if (isGroup && lastMessage?.user?.id !== user?.id) {
       const senderName = lastMessage?.user?.name || lastMessage?.user?.id || '';
-      return `${senderName}: ${lastMessageText}`;
+      return <>{senderName}: {displayPreview}</>;
     }
     if (lastMessage?.user?.id === user?.id) {
-      return `You: ${lastMessageText}`;
+      return <>You: {displayPreview}</>;
     }
-    return lastMessageText;
-  }, [lastMessageText, isGroup, lastMessage, user]);
+    return displayPreview;
+  }, [latestMessage, hasAttachment, isGroup, lastMessage, user]);
 
   const handleClick = () => {
     setActiveChannel?.(channel);

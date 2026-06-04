@@ -202,6 +202,7 @@ export function ChatMessage() {
               status={bubbleStatus}
               edited={isEdited}
               views={(message as any).viewCount}
+              attachments={(message as any).attachments}
             >
               {message.text && <p className='whitespace-pre-wrap break-words'>{message.text}</p>}
               {message.html && !message.text && (
